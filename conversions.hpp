@@ -424,7 +424,11 @@ struct Bool_data_conversions final {
 // std::string_view conversions
 // -----------------------------------------------------------------------------
 
-/// The implementation of `std::string_view` to/from Data conversions.
+/**
+ * The implementation of `std::string_view` to/from Data conversions.
+ *
+ * @remarks Conversion from std::string_view to Data is prohibited!
+ */
 struct String_view_data_conversions final {
   using Type = std::string_view;
 
@@ -438,12 +442,6 @@ struct String_view_data_conversions final {
   static Type to_type(std::unique_ptr<Data>&& data, Types&& ...)
   {
     return to_type(*data);
-  }
-
-  template<typename ... Types>
-  static std::unique_ptr<Data> to_data(const Type value, Types&& ...)
-  {
-    return Data::make_no_copy({value.data(), value.size()}, Data_format::text);
   }
 };
 

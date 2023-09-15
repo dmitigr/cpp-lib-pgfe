@@ -167,7 +167,7 @@ int main()
     // std::string_view
     {
       const std::string_view original{"Dmitry Igrishin"};
-      const auto data = pgfe::to_data(original);
+      const auto data = pgfe::to_data(std::string{original});
       const auto converted = pgfe::to<std::string_view>(*data);
       DMITIGR_ASSERT(original == converted);
     }
