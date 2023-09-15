@@ -149,34 +149,6 @@ try {
     ++i;
   });
 
-  // class Named_argument.
-  {
-    using pgfe::a;
-
-    a na1{"null", nullptr};
-    DMITIGR_ASSERT(na1.name() == "null");
-    DMITIGR_ASSERT(!na1.data());
-
-    auto data = pgfe::to_data(1);
-    DMITIGR_ASSERT(data);
-
-    a na2{"without-ownership", *data};
-    DMITIGR_ASSERT(na2.name() == "without-ownership");
-    DMITIGR_ASSERT(na2.data() == *data);
-
-    const auto* const data_ptr = data.get();
-    DMITIGR_ASSERT(data_ptr);
-    a na3{"with-ownership", std::move(data)};
-    DMITIGR_ASSERT(na3.name() == "with-ownership");
-    DMITIGR_ASSERT(!data);
-    DMITIGR_ASSERT(na3.data() == *data_ptr);
-
-    a na4{"ala-php", 14};
-    DMITIGR_ASSERT(na4.name() == "ala-php");
-    DMITIGR_ASSERT(na4.data());
-    DMITIGR_ASSERT(pgfe::to<int>(na4.data()) == 14);
-  }
-
   // Test invalidation of prepared statements after disconnection.
   auto ps3 = conn->prepare("select 3", "ps3");
   auto ps3_2 = conn->describe("ps3");

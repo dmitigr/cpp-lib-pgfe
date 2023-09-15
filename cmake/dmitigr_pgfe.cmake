@@ -141,6 +141,7 @@ if(DMITIGR_LIBS_TESTS)
     data
     exceptions
     hello_world
+    named_argument
     pipeline
     pq_vs_pgfe
     ps
