@@ -44,19 +44,6 @@ int main()
       DMITIGR_ASSERT(to<std::string_view>(*d) == name);
     }
 
-    // Data::make(std::unique_ptr<void, void (*)(void*)>&&, std::size_t, Data_format)
-    {
-      char substr[] = {'D', 'm', 'i', 't', '\0'};
-      char mem[] = {'D', 'm', 'i', 't', 'r', 'y'};
-      constexpr auto sz = sizeof(substr); // size includes '\0'
-      static_assert(sizeof(mem) >= sz, "Ill-formed test");
-      std::unique_ptr<void, void (*)(void*)> storage{mem, [](void*){ /* dummy deleter */ }};
-      const auto d = pgfe::Data::make(std::move(storage), sz, pgfe::Data_format::binary);
-      DMITIGR_ASSERT(d->format() == pgfe::Data_format::binary);
-      DMITIGR_ASSERT(d->size() == sz);
-      DMITIGR_ASSERT(std::strncmp(static_cast<const char*>(d->bytes()), "Dmit", sz - 1) == 0);
-    }
-
     // Data::make(std::string&&, Data_format)
     {
       const char* const name = "Dmitry Igrishin";

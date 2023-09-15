@@ -59,7 +59,11 @@ public:
   /// @name Constructors
   /// @{
 
-  /// @returns A new instance of this class.
+  /**
+   * @returns A new instance of this class.
+   *
+   * @remarks bytes() of a resulting Data are null-terminated.
+   */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(
     std::string&& storage,
     Data_format format);
@@ -67,33 +71,18 @@ public:
   /**
    * @overload
    *
-   * @par Requires
-   * `storage || !size`.
-   */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
-    std::unique_ptr<void, void(*)(void*)>&& storage,
-    std::size_t size,
-    Data_format format);
-
-  /**
-   * @overload
-   *
    * @remarks The `bytes` will be copied into the modifiable internal storage.
+   * @remarks bytes() of a resulting Data are null-terminated.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(
     std::string_view bytes,
     Data_format format = Data_format::text);
 
   /**
-   * @returns A new instance of this class.
+   * @returns The deep-copy of this instance.
    *
-   * @see Data_view.
+   * @remarks bytes() of a resulting Data are null-terminated.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make_no_copy(
-    std::string_view bytes,
-    Data_format format = Data_format::text);
-
-  /// @returns The deep-copy of this instance.
   virtual std::unique_ptr<Data> to_data() const = 0;
 
   /**
@@ -102,6 +91,8 @@ public:
    *
    * @par Requires
    * `(format() == Data_format::text) && (bytes()[size()] == 0)`.
+   *
+   * @remarks bytes() of a resulting Data are not null-terminated.
    */
   DMITIGR_PGFE_API std::unique_ptr<Data> to_bytea() const;
 
@@ -140,6 +131,22 @@ public:
 protected:
   /// @returns `true` if the invariant of this instance is correct.
   virtual bool is_invariant_ok() const;
+
+private:
+  friend Connection;
+
+  /**
+   * @overload
+   *
+   * @par Requires
+   * `(storage || !size) && (format != Data_format::text || storage.get()[size] == '\0')`
+   */
+  static std::unique_ptr<Data> make(
+    std::unique_ptr<void, void(*)(void*)>&& storage,
+    std::size_t size,
+    Data_format format);
+
+  static std::unique_ptr<Data> to_bytea__(const void* text);
 };
 
 /**

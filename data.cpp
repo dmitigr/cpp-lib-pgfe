@@ -174,9 +174,7 @@ namespace dmitigr::pgfe {
 // Data
 // -----------------------------------------------------------------------------
 
-namespace {
-
-inline std::unique_ptr<pgfe::Data> to_bytea__(const void* const text)
+std::unique_ptr<Data> Data::to_bytea__(const void* const text)
 {
   if (!text)
     throw Generic_exception{"cannot convert data to bytea: null input data"};
@@ -185,13 +183,10 @@ inline std::unique_ptr<pgfe::Data> to_bytea__(const void* const text)
   std::size_t storage_size{};
   using Uptr = std::unique_ptr<void, void(*)(void*)>;
   if (auto storage = Uptr{PQunescapeBytea(bytes, &storage_size), &PQfreemem})
-    return pgfe::Data::make(std::move(storage), storage_size,
-      pgfe::Data_format::binary);
+    return make(std::move(storage), storage_size, pgfe::Data_format::binary);
   else
     throw std::bad_alloc{};
 }
-
-} // namespace
 
 DMITIGR_PGFE_INLINE bool Data::is_valid() const noexcept
 {
@@ -201,7 +196,7 @@ DMITIGR_PGFE_INLINE bool Data::is_valid() const noexcept
 DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data::to_bytea() const
 {
   if (!((format() == Data_format::text)
-      && bytes() && (static_cast<const char*>(bytes())[size()] == 0)))
+      && bytes() && (static_cast<const char*>(bytes())[size()] == '\0')))
     throw Generic_exception{"cannot convert data to bytea:"
       " invalid input data format"};
 
@@ -234,16 +229,6 @@ Data::make(std::string&& storage, const Data_format format)
 }
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data>
-Data::make(std::unique_ptr<void, void(*)(void*)>&& storage,
-  const std::size_t size, const Data_format format)
-{
-  if (!(storage || !size))
-    throw Generic_exception{"cannot create an instance of data"};
-  return std::make_unique<detail::custom_memory_Data>(std::move(storage),
-    size, format);
-}
-
-DMITIGR_PGFE_INLINE std::unique_ptr<Data>
 Data::make(const std::string_view bytes, const Data_format format)
 {
   if (bytes.size() > 0) {
@@ -256,13 +241,13 @@ Data::make(const std::string_view bytes, const Data_format format)
     return std::make_unique<detail::empty_Data>(format);
 }
 
-DMITIGR_PGFE_INLINE std::unique_ptr<Data>
-Data::make_no_copy(const std::string_view bytes, const Data_format format)
+std::unique_ptr<Data> Data::make(std::unique_ptr<void, void(*)(void*)>&& storage,
+  const std::size_t size, const Data_format format)
 {
-  if (bytes.size() > 0)
-    return std::make_unique<Data_view>(bytes.data(), bytes.size(), format);
-  else
-    return std::make_unique<detail::empty_Data>(format);
+  if (!(storage || !size) ||
+    !(format != Data_format::text || static_cast<const char*>(storage.get())[size] == '\0'))
+    throw Generic_exception{"cannot create an instance of data"};
+  return std::make_unique<detail::custom_memory_Data>(std::move(storage), size, format);
 }
 
 DMITIGR_PGFE_INLINE int cmp(const Data& lhs, const Data& rhs) noexcept
@@ -325,8 +310,9 @@ DMITIGR_PGFE_INLINE void Data_view::swap(Data_view& rhs) noexcept
 DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data_view::to_data() const
 {
   const auto sz = static_cast<std::size_t>(data_.size());
-  std::unique_ptr<char[]> storage{new char[sz]};
+  std::unique_ptr<char[]> storage{new char[sz + 1]};
   std::memcpy(storage.get(), data_.data(), sz);
+  storage.get()[sz] = '\0';
   return std::make_unique<detail::array_memory_Data>(std::move(storage),
     sz, format_);
 }
