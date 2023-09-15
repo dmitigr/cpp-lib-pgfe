@@ -251,8 +251,7 @@ public:
   /**
    * @brief Binds the parameter of the specified index with the specified value.
    *
-   * @details Similar to bind(std::size_t, std::unique_ptr<Data>&&) but binds
-   * the parameter of the specified index with the value of type `T`.
+   * @details Binds the parameter of the specified index with the value of type `T`.
    *
    * @tparam T A `value` type which can be one of the following:
    *   - `std::unique_ptr<Data>` to bind the specified `value`. (The `value`
