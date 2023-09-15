@@ -261,15 +261,6 @@ public:
   explicit DMITIGR_PGFE_API Data_view(const char* bytes) noexcept;
 
   /**
-   * @brief Constructs the data view of the specified `size` and `format`.
-   *
-   * @par Effects
-   * `bytes()`. If `bytes` then `is_valid() && (format() == format)`.
-   */
-  DMITIGR_PGFE_API Data_view(const char* bytes, std::size_t size,
-    Format format = Format::text) noexcept;
-
-  /**
    * @brief Constructs the data view of the specified `data`.
    *
    * @par Effects
@@ -308,8 +299,19 @@ public:
   DMITIGR_PGFE_API const void* bytes() const noexcept override;
 
 private:
+  friend Copier;
+  friend Row;
+
   Format format_{-1};
   std::string_view data_{"", 0};
+
+  /**
+   * @brief Constructs the data view of the specified `size` and `format`.
+   *
+   * @par Effects
+   * `bytes()`. If `bytes` then `is_valid().
+   */
+  Data_view(const char* bytes, std::size_t size, Format format) noexcept;
 };
 
 /**
