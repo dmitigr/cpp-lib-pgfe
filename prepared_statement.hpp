@@ -88,7 +88,7 @@ public:
   DMITIGR_PGFE_API const std::string& name() const noexcept;
 
   /// @returns The bound data.
-  DMITIGR_PGFE_API Data_view data() const noexcept;
+  DMITIGR_PGFE_API const Data* data() const noexcept;
 
   /// @returns `true` if this instance owns the `data()`.
   DMITIGR_PGFE_API bool owns_data() const noexcept;
@@ -285,14 +285,13 @@ public:
   Prepared_statement& bind(std::size_t index, T&& value)
   {
     using U = std::decay_t<T>;
-    constexpr auto is_nullptr = std::is_same_v<U, std::nullptr_t>;
-    static_assert(is_nullptr || !std::is_convertible_v<U, const Data*>,
-      "binding of Data* is forbidden");
     if constexpr (std::is_same_v<U, std::unique_ptr<Data>>) {
       return bind(index, Data_ptr{value.release(), Data_deletion_required{true}});
     } else if constexpr (std::is_convertible_v<U, const Data&>) {
       return bind(index, Data_ptr{&value, Data_deletion_required{false}});
-    } else if constexpr (is_nullptr) {
+    } else if constexpr (std::is_convertible_v<U, const Data*>) {
+      return bind(index, Data_ptr{value, Data_deletion_required{false}});
+    } else if constexpr (std::is_same_v<U, std::nullptr_t>) {
       return bind(index, Data_ptr{nullptr, Data_deletion_required{false}});
     } else
       return bind(index, to_data(std::forward<T>(value)));

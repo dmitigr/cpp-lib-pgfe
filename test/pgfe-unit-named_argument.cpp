@@ -16,27 +16,13 @@
 
 #include "pgfe-unit.hpp"
 
-namespace pgfe = dmitigr::pgfe;
-
-inline void test_named_argument(pgfe::Connection& dbconn, const pgfe::Named_argument& id)
-{
-  dbconn.execute([](auto&& row)
-  {
-    DMITIGR_ASSERT(pgfe::to<int>(row[0]) == 12345);
-  }, "select :id", id);
-}
-
-int main()
-try {
+int main() try {
+  namespace pgfe = dmitigr::pgfe;
   using pgfe::a;
   using pgfe::to;
   using pgfe::Data_view;
 
-  const auto conn = pgfe::test::make_connection();
-  conn->connect();
-  DMITIGR_ASSERT(conn->is_connected());
-
-  // class Named_argument.
+  // Basic tests.
   {
     a na1{"null", nullptr};
     DMITIGR_ASSERT(na1.name() == "null");
@@ -47,7 +33,7 @@ try {
 
     a na2{"without-ownership", *data};
     DMITIGR_ASSERT(na2.name() == "without-ownership");
-    DMITIGR_ASSERT(na2.data() == *data);
+    DMITIGR_ASSERT(na2.data() == data.get());
     DMITIGR_ASSERT(!na2.owns_data());
 
     const auto* const data_ptr = data.get();
@@ -55,18 +41,34 @@ try {
     a na3{"with-ownership", std::move(data)};
     DMITIGR_ASSERT(na3.name() == "with-ownership");
     DMITIGR_ASSERT(!data);
-    DMITIGR_ASSERT(na3.data() == *data_ptr);
+    DMITIGR_ASSERT(na3.data() == data_ptr);
     DMITIGR_ASSERT(na3.owns_data());
 
     a na4{"ala-php", 14};
     DMITIGR_ASSERT(na4.name() == "ala-php");
     DMITIGR_ASSERT(na4.data());
-    DMITIGR_ASSERT(pgfe::to<int>(na4.data()) == 14);
+    DMITIGR_ASSERT(pgfe::to<int>(*na4.data()) == 14);
   }
 
-  const a id{"id", 12345};
-  test_named_argument(*conn, id);
+  // Connect.
+  const auto conn = pgfe::test::make_connection();
+  conn->connect();
+  DMITIGR_ASSERT(conn->is_connected());
 
+  // Online test 1 (lvalue named argument).
+  {
+    const a id{"id", 12345};
+    conn->execute([](auto&& row)
+    {
+      DMITIGR_ASSERT(pgfe::to<int>(row[0]) == 12345);
+    }, "select :id", id);
+  }
+
+  // Online test 2 (rvalue named argument).
+  conn->execute([](auto&& row)
+  {
+    DMITIGR_ASSERT(pgfe::to<int>(row[0]) == 12345);
+  }, "select :id", a{"id", 12345});
 } catch (const std::exception& e) {
   std::cerr << e.what() << std::endl;
   return 1;

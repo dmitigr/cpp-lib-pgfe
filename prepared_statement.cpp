@@ -51,9 +51,9 @@ DMITIGR_PGFE_INLINE const std::string& Named_argument::name() const noexcept
   return name_;
 }
 
-DMITIGR_PGFE_INLINE Data_view Named_argument::data() const noexcept
+DMITIGR_PGFE_INLINE const Data* Named_argument::data() const noexcept
 {
-  return data_ ? Data_view{*data_} : Data_view{};
+  return data_.get();
 }
 
 DMITIGR_PGFE_INLINE bool Named_argument::owns_data() const noexcept
@@ -452,10 +452,7 @@ Prepared_statement::bind__(const std::size_t, Named_argument&& na)
 DMITIGR_PGFE_INLINE Prepared_statement&
 Prepared_statement::bind__(const std::size_t, const Named_argument& na)
 {
-  if (na.owns_data())
-    return bind(na.name(), na.data().to_data());
-  else
-    return bind(na.name(), na.data());
+  return bind(na.name(), na.data());
 }
 
 DMITIGR_PGFE_INLINE void
