@@ -311,12 +311,7 @@ DMITIGR_PGFE_INLINE void Data_view::swap(Data_view& rhs) noexcept
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data_view::to_data() const
 {
-  const auto sz = data_.size();
-  std::unique_ptr<char[]> storage{new char[sz + 1]};
-  std::memcpy(storage.get(), data_.data(), sz);
-  storage.get()[sz] = '\0';
-  return std::make_unique<detail::array_memory_Data>(std::move(storage),
-    sz, format_);
+  return Data::make(data_, format_);
 }
 
 DMITIGR_PGFE_INLINE auto Data_view::format() const noexcept -> Format
