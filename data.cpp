@@ -311,7 +311,7 @@ DMITIGR_PGFE_INLINE void Data_view::swap(Data_view& rhs) noexcept
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data_view::to_data() const
 {
-  const auto sz = static_cast<std::size_t>(data_.size());
+  const auto sz = data_.size();
   std::unique_ptr<char[]> storage{new char[sz + 1]};
   std::memcpy(storage.get(), data_.data(), sz);
   storage.get()[sz] = '\0';
