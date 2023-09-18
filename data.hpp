@@ -38,6 +38,8 @@ namespace dmitigr::pgfe {
  * server (as the parameter value of the Prepared_statement), or received from
  * the PostgreSQL server (in particular, as the data of the row field or as the
  * asynchronous notification payload).
+ *
+ * @remarks Bytes of data of format `Data_format::text` are always null-terminated.
  */
 class Data {
 public:
