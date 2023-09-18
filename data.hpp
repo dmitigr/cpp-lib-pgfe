@@ -65,8 +65,8 @@ public:
    * @remarks bytes() of a resulting Data are null-terminated.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(
-    std::string&& storage,
-    Data_format format);
+    std::string storage,
+    Data_format format = Data_format::text);
 
   /**
    * @overload
@@ -75,8 +75,20 @@ public:
    * @remarks bytes() of a resulting Data are null-terminated.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(
-    std::string_view bytes,
-    Data_format format = Data_format::text);
+    const char* bytes,
+    std::size_t size,
+    Data_format format);
+
+  /**
+   * @overload
+   *
+   * @par Requires
+   * `(storage || !size) && (format != Data_format::text || storage.get()[size] == '\0')`
+   */
+  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
+    std::unique_ptr<void, void(*)(void*)> storage,
+    std::size_t size,
+    Data_format format);
 
   /**
    * @returns The deep-copy of this instance.
@@ -102,12 +114,7 @@ public:
    * @par Requires
    * `text_data`.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Data>
-  to_bytea(const char* text_data);
-
-  /// @overload
-  static DMITIGR_PGFE_API std::unique_ptr<Data>
-  to_bytea(const std::string& text_data);
+  static DMITIGR_PGFE_API std::unique_ptr<Data> to_bytea(const char* text_data);
 
   /// @}
 
@@ -131,22 +138,6 @@ public:
 protected:
   /// @returns `true` if the invariant of this instance is correct.
   virtual bool is_invariant_ok() const;
-
-private:
-  friend Connection;
-
-  /**
-   * @overload
-   *
-   * @par Requires
-   * `(storage || !size) && (format != Data_format::text || storage.get()[size] == '\0')`
-   */
-  static std::unique_ptr<Data> make(
-    std::unique_ptr<void, void(*)(void*)>&& storage,
-    std::size_t size,
-    Data_format format);
-
-  static std::unique_ptr<Data> to_bytea__(const void* text);
 };
 
 /**

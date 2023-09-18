@@ -90,8 +90,7 @@ public:
 
   std::unique_ptr<Data> to_data() const override
   {
-    return Data::make(std::string_view{static_cast<char*>(storage_.get()), size_},
-      format_);
+    return Data::make(static_cast<char*>(storage_.get()), size_, format_);
   }
 
   Format format() const noexcept override
@@ -180,26 +179,25 @@ DMITIGR_PGFE_INLINE bool Data::is_valid() const noexcept
 }
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data>
-Data::make(std::string&& storage, const Data_format format)
+Data::make(std::string storage, const Data_format format)
 {
   return std::make_unique<detail::string_Data>(std::move(storage), format);
 }
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data>
-Data::make(const std::string_view bytes, const Data_format format)
+Data::make(const char* const bytes, const std::size_t size, const Data_format format)
 {
-  if (bytes.size() > 0) {
-    std::unique_ptr<char[]> storage{new char[bytes.size() + 1]};
-    std::memcpy(storage.get(), bytes.data(), bytes.size());
-    storage.get()[bytes.size()] = '\0';
-    return std::make_unique<detail::array_memory_Data>(std::move(storage),
-      bytes.size(), format);
+  if (bytes && size > 0) {
+    std::unique_ptr<char[]> storage{new char[size + 1]};
+    std::memcpy(storage.get(), bytes, size);
+    storage.get()[size] = '\0';
+    return std::make_unique<detail::array_memory_Data>(std::move(storage), size, format);
   } else
     return std::make_unique<detail::empty_Data>(format);
 }
 
-std::unique_ptr<Data>
-Data::make(std::unique_ptr<void, void(*)(void*)>&& storage,
+DMITIGR_PGFE_INLINE std::unique_ptr<Data>
+Data::make(std::unique_ptr<void, void(*)(void*)> storage,
   const std::size_t size, const Data_format format)
 {
   if (!(storage || !size) ||
@@ -215,27 +213,16 @@ DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data::to_bytea() const
     throw Generic_exception{"cannot convert data to bytea:"
       " invalid input data format"};
 
-  return to_bytea__(bytes());
+  return to_bytea(static_cast<const char*>(bytes()));
 }
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data>
 Data::to_bytea(const char* const text_data)
 {
-  return to_bytea__(text_data);
-}
-
-DMITIGR_PGFE_INLINE std::unique_ptr<Data>
-Data::to_bytea(const std::string& text_data)
-{
-  return to_bytea__(text_data.c_str());
-}
-
-DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data::to_bytea__(const void* const text)
-{
-  if (!text)
+  if (!text_data)
     throw Generic_exception{"cannot convert data to bytea: null input data"};
 
-  const auto* const bytes = static_cast<const unsigned char*>(text);
+  const auto* const bytes = reinterpret_cast<const unsigned char*>(text_data);
   std::size_t storage_size{};
   using Uptr = std::unique_ptr<void, void(*)(void*)>;
   if (auto storage = Uptr{PQunescapeBytea(bytes, &storage_size), &PQfreemem})
@@ -310,7 +297,7 @@ DMITIGR_PGFE_INLINE void Data_view::swap(Data_view& rhs) noexcept
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data_view::to_data() const
 {
-  return Data::make(data_, format_);
+  return Data::make(data_.data(), data_.size(), format_);
 }
 
 DMITIGR_PGFE_INLINE auto Data_view::format() const noexcept -> Format
