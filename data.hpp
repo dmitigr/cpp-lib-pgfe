@@ -257,6 +257,8 @@ public:
    *
    * @par Effects
    * `bytes()`. If `bytes` then `is_valid() && (format() == Format::text)`.
+   *
+   * @remarks bytes() of a resulting Data_view are null-terminated.
    */
   explicit DMITIGR_PGFE_API Data_view(const char* bytes) noexcept;
 

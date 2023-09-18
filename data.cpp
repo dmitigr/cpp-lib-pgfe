@@ -230,7 +230,7 @@ Data::to_bytea(const std::string& text_data)
   return to_bytea__(text_data.c_str());
 }
 
-std::unique_ptr<Data> Data::to_bytea__(const void* const text)
+DMITIGR_PGFE_INLINE std::unique_ptr<Data> Data::to_bytea__(const void* const text)
 {
   if (!text)
     throw Generic_exception{"cannot convert data to bytea: null input data"};
@@ -243,7 +243,6 @@ std::unique_ptr<Data> Data::to_bytea__(const void* const text)
   else
     throw std::bad_alloc{};
 }
-
 
 DMITIGR_PGFE_INLINE bool Data::is_invariant_ok() const
 {
