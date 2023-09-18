@@ -1460,7 +1460,8 @@ DMITIGR_PGFE_INLINE int Connection::socket() const noexcept
 DMITIGR_PGFE_INLINE void Connection::throw_if_error()
 {
   if (auto err = error())
-    throw Sqlstate_exception{std::make_shared<Error>(std::move(err))};
+    throw Sqlstate_exception{std::make_shared<Error>(std::move(err)),
+      "PostgreSQL server error"};
 }
 
 DMITIGR_PGFE_INLINE Completion&& Connection::completion_or_throw(Completion&& comp)

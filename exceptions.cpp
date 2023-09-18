@@ -32,8 +32,9 @@ DMITIGR_PGFE_INLINE Generic_exception::Generic_exception(const std::string& what
 
 // =============================================================================
 
-DMITIGR_PGFE_INLINE Sqlstate_exception::Sqlstate_exception(std::shared_ptr<Error>&& error)
-  : Exception{detail::not_false(error)->condition()}
+DMITIGR_PGFE_INLINE Sqlstate_exception::Sqlstate_exception(std::shared_ptr<Error>&& error,
+  const std::string& what)
+  : Exception{detail::not_false(error)->condition(), what}
   , error_{std::move(error)}
 {}
 
