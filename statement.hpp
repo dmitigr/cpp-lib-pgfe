@@ -276,7 +276,7 @@ public:
    *
    * @see bound_parameter_count(), bound().
    */
-  DMITIGR_PGFE_API bool has_bound_parameter() const noexcept;
+  DMITIGR_PGFE_API bool has_bound_parameters() const noexcept;
 
   /**
    * @brief Replaces the parameter named by the `name` with the specified

@@ -93,16 +93,16 @@ int main()
       DMITIGR_ASSERT(st.parameter_count() == 2);
 
       DMITIGR_ASSERT(st.bound_parameter_count() == 0);
-      DMITIGR_ASSERT(!st.has_bound_parameter());
+      DMITIGR_ASSERT(!st.has_bound_parameters());
       st.bind("txt", "one");
       DMITIGR_ASSERT(*st.bound("txt") == "one");
       std::cout << st.bound_parameter_count() << std::endl;
       DMITIGR_ASSERT(st.bound_parameter_count() == 1);
-      DMITIGR_ASSERT(st.has_bound_parameter());
+      DMITIGR_ASSERT(st.has_bound_parameters());
       st.bind("tab", "number");
       DMITIGR_ASSERT(*st.bound("tab") == "number");
       DMITIGR_ASSERT(st.bound_parameter_count() == 2);
-      DMITIGR_ASSERT(st.has_bound_parameter());
+      DMITIGR_ASSERT(st.has_bound_parameters());
 
       std::cout << st.to_string() << std::endl;
       std::cout << st.to_query_string(*conn) << std::endl;

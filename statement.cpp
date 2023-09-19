@@ -289,7 +289,7 @@ Statement::bound_parameter_count() const noexcept
 }
 
 DMITIGR_PGFE_INLINE bool
-Statement::has_bound_parameter() const noexcept
+Statement::has_bound_parameters() const noexcept
 {
   return !bindings_.empty();
 }
@@ -392,7 +392,7 @@ Statement::to_query_string(const Connection& conn) const
   std::string result;
   result.reserve(2048);
   std::size_t bound_counter{};
-  const bool has_bound{has_bound_parameter()};
+  const bool has_bound{has_bound_parameters()};
   for (const auto& fragment : fragments_) {
     switch (fragment.type) {
     case Ft::text:

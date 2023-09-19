@@ -370,7 +370,7 @@ DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(
   if (state_->preparsed_) {
     const std::size_t pc{preparsed->parameter_count()};
     parameters_.resize(pc - preparsed->bound_parameter_count());
-    if (preparsed->has_bound_parameter()) { // slow path
+    if (preparsed->has_bound_parameters()) { // slow path
       std::size_t bound_counter{};
       for (std::size_t i{preparsed->positional_parameter_count()}; i < pc; ++i) {
         std::string name{preparsed->parameter_name(i)};
