@@ -29,6 +29,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -45,9 +46,9 @@ namespace dmitigr::pgfe {
  * The valid parameter positions range is [1, max_parameter_count()].
  *
  * Quoting the name of named parameter with either single or double quotes will
- * lead to automatically quoting the content of such a parameter as a literal or
- * an identifier accordingly at the time of generating the resulting query string
- * with to_query_string().
+ * lead to automatically quoting the bound content of such a parameter as a
+ * literal or an identifier accordingly at the time of generating the resulting
+ * query string with to_query_string().
  *
  * Examples of valid SQL strings:
  *
@@ -152,12 +153,12 @@ public:
    * `index < positional_parameter_count()`.
    *
    * @remarks Missing parameters can only be eliminated by using methods append()
-   * or replace_parameter(). Thus, by replacing the parameter `p` with `$2, $1`
-   * in the example above, missing parameters will be eliminated because the
-   * statement will become the following:
+   * or replace(). Thus, by replacing the parameter `p` with `$2, $1` in the
+   * example above, missing parameters will be eliminated because the statement
+   * will become the following:
    * @code{sql} SELECT $2, $1, $3 @endcode
    *
-   * @see append(), replace_parameter().
+   * @see append(), replace().
    */
   DMITIGR_PGFE_API bool
   is_parameter_missing(const std::size_t index) const;
@@ -230,21 +231,38 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see has_parameter(), replace_parameter(), bound().
+   * @see unbind(), has_parameter(), replace(), bound().
    */
-  DMITIGR_PGFE_API Statement&
-  bind(const std::string_view name, const std::optional<std::string>& value);
+  DMITIGR_PGFE_API Statement& bind(const std::string& name, std::string value);
 
   /**
-   * @returns The value bound to parameter.
+   * @brief Unbinds the parameter named by the `name` from the associated value.
+   *
+   * @returns `*this`.
+   *
+   * @par Requires
+   * `has_parameter(name)`.
+   *
+   * @par Effects
+   * The parameter `name` is not associated with value and will not be substituted
+   * upon of calling to_query_string().
+   *
+   * @par Exception safety guarantee
+   * Basic.
+   *
+   * @see bind(), has_parameter(), replace(), bound().
+   */
+  DMITIGR_PGFE_API Statement& unbind(const std::string& name);
+
+  /**
+   * @returns The value bound to parameter, or `nullptr` if no value bound.
    *
    * @par Requires
    * `has_parameter(name)`.
    *
    * @see bind().
    */
-  DMITIGR_PGFE_API const std::optional<std::string>&
-  bound(const std::string_view name) const;
+  DMITIGR_PGFE_API const std::string* bound(const std::string& name) const;
 
   /**
    * @returns The number of bound parameters.
@@ -258,7 +276,7 @@ public:
    *
    * @see bound_parameter_count(), bound().
    */
-  DMITIGR_PGFE_API bool has_bound_parameters() const noexcept;
+  DMITIGR_PGFE_API bool has_bound_parameter() const noexcept;
 
   /**
    * @brief Replaces the parameter named by the `name` with the specified
@@ -276,8 +294,7 @@ public:
    *
    * @see has_parameter(), bind().
    */
-  DMITIGR_PGFE_API void
-  replace_parameter(std::string_view name, const Statement& replacement);
+  DMITIGR_PGFE_API void replace(std::string_view name, const Statement& replacement);
 
   /**
    * @returns The result of conversion of this instance to the instance of
@@ -408,14 +425,17 @@ private:
     Fragment(const Type tp, const std::string& s);
     bool is_named_parameter() const noexcept;
     bool is_named_parameter(const std::string_view name) const noexcept;
+    bool is_quoted_named_parameter() const noexcept;
+    bool is_quoted_named_parameter(const std::string_view name) const noexcept;
 
     Type type;
     std::string str;
-    std::optional<std::string> value;
   };
+
   using Fragment_list = std::list<Fragment>;
 
   Fragment_list fragments_;
+  std::unordered_map<std::string, std::string> bindings_;
   std::vector<bool> positional_parameters_; // cache
   std::vector<Fragment_list::const_iterator> named_parameters_; // cache
   mutable bool is_extra_data_should_be_extracted_from_comments_{true};

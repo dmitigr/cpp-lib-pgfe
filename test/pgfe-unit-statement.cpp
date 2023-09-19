@@ -28,6 +28,9 @@ int main()
   try {
     namespace pgfe = dmitigr::pgfe;
 
+    const auto conn = pgfe::test::make_connection();
+    conn->connect();
+
     {
       pgfe::Statement st;
       DMITIGR_ASSERT(st.is_empty());
@@ -85,26 +88,33 @@ int main()
       DMITIGR_ASSERT(st.is_parameter_literal("txt"));
       DMITIGR_ASSERT(st.is_parameter_identifier("tab"));
 
-      st.replace_parameter("num", "1");
+      st.replace("num", "1");
       DMITIGR_ASSERT(st.named_parameter_count() == 2);
       DMITIGR_ASSERT(st.parameter_count() == 2);
 
       DMITIGR_ASSERT(st.bound_parameter_count() == 0);
-      DMITIGR_ASSERT(!st.has_bound_parameters());
+      DMITIGR_ASSERT(!st.has_bound_parameter());
       st.bind("txt", "one");
-      DMITIGR_ASSERT(st.bound("txt") == "one");
+      DMITIGR_ASSERT(*st.bound("txt") == "one");
       std::cout << st.bound_parameter_count() << std::endl;
       DMITIGR_ASSERT(st.bound_parameter_count() == 1);
-      DMITIGR_ASSERT(st.has_bound_parameters());
+      DMITIGR_ASSERT(st.has_bound_parameter());
       st.bind("tab", "number");
-      DMITIGR_ASSERT(st.bound("tab") == "number");
+      DMITIGR_ASSERT(*st.bound("tab") == "number");
       DMITIGR_ASSERT(st.bound_parameter_count() == 2);
-      DMITIGR_ASSERT(st.has_bound_parameters());
+      DMITIGR_ASSERT(st.has_bound_parameter());
 
-      const auto conn = pgfe::test::make_connection();
-      conn->connect();
       std::cout << st.to_string() << std::endl;
       std::cout << st.to_query_string(*conn) << std::endl;
+    }
+
+    {
+      pgfe::Statement st{R"(SELECT 1 WHERE :condition and task_id = :task_id)"};
+      const auto quoted = conn->to_quoted_literal("SSH");
+      st.bind("condition", "upper(code) = upper(" + quoted + ")");
+      std::cout << st.to_string() << std::endl;
+      std::cout << st.to_query_string(*conn) << std::endl;
+      std::cout << st.parameter_count() << std::endl;
     }
 
     {
@@ -141,7 +151,7 @@ int main()
 
       for (auto& ref : {std::ref(s_orig), std::ref(s_copy)}) {
         auto& st = ref.get();
-        st.replace_parameter("age", "g(:first_name, :age, :p2) + 1");
+        st.replace("age", "g(:first_name, :age, :p2) + 1");
         DMITIGR_ASSERT(st.parameter_index("first_name") == 3);
         DMITIGR_ASSERT(st.parameter_index("age") == 4);
         DMITIGR_ASSERT(st.parameter_index("p2") == 5);

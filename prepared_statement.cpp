@@ -368,17 +368,26 @@ DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(
   init_connection__(std::move(state));
   state_->preparsed_ = static_cast<bool>(preparsed);
   if (state_->preparsed_) {
-    std::size_t bound_params_count{};
     const std::size_t pc{preparsed->parameter_count()};
-    parameters_.resize(pc);
-    for (std::size_t i = preparsed->positional_parameter_count(); i < pc; ++i) {
-      const auto name = preparsed->parameter_name(i);
-      if (preparsed->bound(name))
-        ++bound_params_count;
-      else
-        parameters_[i - bound_params_count].name = name;
+    parameters_.resize(pc - preparsed->bound_parameter_count());
+    if (preparsed->has_bound_parameter()) { // slow path
+      std::size_t bound_counter{};
+      for (std::size_t i{preparsed->positional_parameter_count()}; i < pc; ++i) {
+        std::string name{preparsed->parameter_name(i)};
+        if (!preparsed->bound(name)) {
+          DMITIGR_ASSERT(!preparsed->is_parameter_literal(i) &&
+            !preparsed->is_parameter_identifier(i));
+          parameters_.at(i - bound_counter).name = std::move(name);
+        } else
+          ++bound_counter;
+      }
+    } else { // fast path
+      for (std::size_t i{preparsed->positional_parameter_count()}; i < pc; ++i) {
+        DMITIGR_ASSERT(!preparsed->is_parameter_literal(i) &&
+          !preparsed->is_parameter_identifier(i));
+        parameters_[i].name = preparsed->parameter_name(i);
+      }
     }
-    parameters_.resize(pc - bound_params_count);
   } else
     parameters_.reserve(8);
 

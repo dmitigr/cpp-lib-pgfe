@@ -39,15 +39,26 @@ DMITIGR_PGFE_INLINE bool
 Statement::Fragment::is_named_parameter() const noexcept
 {
   using Ft = Fragment::Type;
-  return type == Ft::named_parameter ||
-    type == Ft::named_parameter_literal ||
-    type == Ft::named_parameter_identifier;
+  return type == Ft::named_parameter || is_quoted_named_parameter();
 }
 
 DMITIGR_PGFE_INLINE bool
 Statement::Fragment::is_named_parameter(const std::string_view name) const noexcept
 {
   return is_named_parameter() && str == name;
+}
+
+DMITIGR_PGFE_INLINE bool
+Statement::Fragment::is_quoted_named_parameter() const noexcept
+{
+  using Ft = Fragment::Type;
+  return type == Ft::named_parameter_literal || type == Ft::named_parameter_identifier;
+}
+
+DMITIGR_PGFE_INLINE bool
+Statement::Fragment::is_quoted_named_parameter(const std::string_view name) const noexcept
+{
+  return is_quoted_named_parameter() && str == name;
 }
 
 // =============================================================================
@@ -69,6 +80,7 @@ DMITIGR_PGFE_INLINE Statement::Statement(const char* const text)
 
 DMITIGR_PGFE_INLINE Statement::Statement(const Statement& rhs)
   : fragments_{rhs.fragments_}
+  , bindings_{rhs.bindings_}
   , positional_parameters_{rhs.positional_parameters_}
   , is_extra_data_should_be_extracted_from_comments_{
       rhs.is_extra_data_should_be_extracted_from_comments_}
@@ -88,6 +100,7 @@ DMITIGR_PGFE_INLINE Statement& Statement::operator=(const Statement& rhs)
 
 DMITIGR_PGFE_INLINE Statement::Statement(Statement&& rhs) noexcept
   : fragments_{std::move(rhs.fragments_)}
+  , bindings_{std::move(rhs.bindings_)}
   , positional_parameters_{std::move(rhs.positional_parameters_)}
   , is_extra_data_should_be_extracted_from_comments_{
       std::move(rhs.is_extra_data_should_be_extracted_from_comments_)}
@@ -109,6 +122,7 @@ DMITIGR_PGFE_INLINE void Statement::swap(Statement& rhs) noexcept
 {
   using std::swap;
   swap(fragments_, rhs.fragments_);
+  swap(bindings_, rhs.bindings_);
   swap(positional_parameters_, rhs.positional_parameters_);
   swap(named_parameters_, rhs.named_parameters_);
   swap(is_extra_data_should_be_extracted_from_comments_,
@@ -144,7 +158,7 @@ DMITIGR_PGFE_INLINE bool Statement::has_named_parameters() const noexcept
 
 DMITIGR_PGFE_INLINE bool Statement::has_parameters() const noexcept
 {
-  return (has_positional_parameters() || has_named_parameters());
+  return has_positional_parameters() || has_named_parameters();
 }
 
 DMITIGR_PGFE_INLINE std::string_view
@@ -233,62 +247,55 @@ DMITIGR_PGFE_INLINE void Statement::append(const Statement& appendix)
 }
 
 DMITIGR_PGFE_INLINE Statement&
-Statement::bind(const std::string_view name,
-  const std::optional<std::string>& value)
+Statement::bind(const std::string& name, std::string value)
 {
   if (!has_parameter(name))
     throw Generic_exception{"cannot bind Statement parameter"};
-  for (auto& fragment : fragments_) {
-    if (fragment.is_named_parameter(name))
-      fragment.value = value;
-  }
+
+  bindings_[name] = std::move(value);
+
   assert(is_invariant_ok());
   return *this;
 }
 
-DMITIGR_PGFE_INLINE const std::optional<std::string>&
-Statement::bound(const std::string_view name) const
+DMITIGR_PGFE_INLINE Statement&
+Statement::unbind(const std::string& name)
+{
+  if (!has_parameter(name))
+    throw Generic_exception{"cannot unbind Statement parameter"};
+
+  if (const auto i = bindings_.find(name); i != bindings_.cend())
+    bindings_.erase(i);
+
+  assert(is_invariant_ok());
+  return *this;
+}
+
+DMITIGR_PGFE_INLINE const std::string*
+Statement::bound(const std::string& name) const
 {
   if (!has_parameter(name))
     throw Generic_exception{"cannot get bound Statement parameter"};
-  for (auto& fragment : fragments_) {
-    if (fragment.is_named_parameter(name))
-      return fragment.value;
-  }
+
+  const auto i = bindings_.find(name);
+  return i != bindings_.cend() ? &(i->second) : nullptr;
   DMITIGR_ASSERT(false);
 }
 
 DMITIGR_PGFE_INLINE std::size_t
 Statement::bound_parameter_count() const noexcept
 {
-  return count_if(cbegin(fragments_), cend(fragments_),
-    [counted = std::vector<std::string>{}](const auto& fragment)mutable -> bool
-    {
-      if (fragment.is_named_parameter()) {
-        const bool is_uncounted{none_of(cbegin(counted), cend(counted),
-          [&fragment](const auto& name){return name == fragment.str;})};
-        if (is_uncounted) {
-          counted.push_back(fragment.str);
-          return static_cast<bool>(fragment.value);
-        }
-      }
-      return false;
-    });
+  return bindings_.size();
 }
 
 DMITIGR_PGFE_INLINE bool
-Statement::has_bound_parameters() const noexcept
+Statement::has_bound_parameter() const noexcept
 {
-  const auto e = cend(fragments_);
-  return find_if(cbegin(fragments_), e, [](const auto& fragment)
-  {
-    return fragment.is_named_parameter() && fragment.value;
-  }) != e;
+  return !bindings_.empty();
 }
 
 DMITIGR_PGFE_INLINE void
-Statement::replace_parameter(const std::string_view name,
-  const Statement& replacement)
+Statement::replace(const std::string_view name, const Statement& replacement)
 {
   if (!(has_parameter(name) && (this != &replacement)))
     throw Generic_exception{"cannot replace Statement parameter"};
@@ -366,10 +373,10 @@ Statement::to_query_string(const Connection& conn) const
     throw Generic_exception{"cannot convert Statement to query string: "
       "not connected"};
 
-  static const auto check_value_bound = [](const auto& fragment)
+  static const auto check_value_bound = [](const auto& fragment, const auto* const value)
   {
     DMITIGR_ASSERT(fragment.is_named_parameter());
-    if (!fragment.value) {
+    if (!value) {
       std::string what{"named parameter "};
       what.append(fragment.str);
       const char* const type_str =
@@ -383,7 +390,9 @@ Statement::to_query_string(const Connection& conn) const
   };
 
   std::string result;
-  result.reserve(512);
+  result.reserve(2048);
+  std::size_t bound_counter{};
+  const bool has_bound{has_bound_parameter()};
   for (const auto& fragment : fragments_) {
     switch (fragment.type) {
     case Ft::text:
@@ -393,29 +402,39 @@ Statement::to_query_string(const Connection& conn) const
       [[fallthrough]];
     case Ft::multi_line_comment:
       break;
-    case Ft::named_parameter:
-      if (!fragment.value) {
+    case Ft::named_parameter: {
+      const auto* const value = bound(fragment.str);
+      if (!has_bound || !value) {
         const auto idx = named_parameter_index(fragment.str);
+        DMITIGR_ASSERT(idx >= positional_parameter_count());
         DMITIGR_ASSERT(idx < parameter_count());
         result += '$';
-        result += std::to_string(idx + 1);
-      } else
-        result += *fragment.value;
+        result += std::to_string(idx - bound_counter + 1);
+      } else {
+        result += *value;
+        ++bound_counter;
+      }
       break;
-    case Ft::named_parameter_literal:
-      check_value_bound(fragment);
-      result += conn.to_quoted_literal(*fragment.value);
+    }
+    case Ft::named_parameter_literal: {
+      const auto* const value = bound(fragment.str);
+      check_value_bound(fragment, value);
+      result += conn.to_quoted_literal(*value);
       break;
-    case Ft::named_parameter_identifier:
-      check_value_bound(fragment);
-      result += conn.to_quoted_identifier(*fragment.value);
+    }
+    case Ft::named_parameter_identifier: {
+      const auto* const value = bound(fragment.str);
+      check_value_bound(fragment, value);
+      result += conn.to_quoted_identifier(*value);
       break;
+    }
     case Ft::positional_parameter:
       result += '$';
       result += fragment.str;
       break;
     }
   }
+  DMITIGR_ASSERT(bound_counter <= bound_parameter_count());
   return result;
 }
 
@@ -733,8 +752,7 @@ private:
       result.second = i;
       do {
         --i;
-        DMITIGR_ASSERT(is_comment(*i) ||
-          (is_text(*i) && str::is_blank(i->str)));
+        DMITIGR_ASSERT(is_comment(*i) || (is_text(*i) && str::is_blank(i->str)));
         if (i->type == Ft::text) {
           if (!is_nearby_string(i->str))
             break;
@@ -832,6 +850,7 @@ DMITIGR_PGFE_INLINE bool Statement::is_invariant_ok() const noexcept
     (parameter_count() > 0) == has_parameters();
   const bool parameters_count_ok =
     parameter_count() == (positional_parameter_count() + named_parameter_count());
+  const bool bindings_ok = bindings_.size() <= named_parameter_count();
   const bool empty_ok = !is_empty() || !has_parameters();
   const bool extra_ok = is_extra_data_should_be_extracted_from_comments_ || extra_;
   const bool parameterizable_ok = Parameterizable::is_invariant_ok();
@@ -841,6 +860,7 @@ DMITIGR_PGFE_INLINE bool Statement::is_invariant_ok() const noexcept
     named_parameters_ok &&
     parameters_ok &&
     parameters_count_ok &&
+    bindings_ok &&
     empty_ok &&
     extra_ok &&
     parameterizable_ok;

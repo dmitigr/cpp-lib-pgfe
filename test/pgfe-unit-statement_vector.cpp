@@ -81,7 +81,7 @@ try {
   {
     DMITIGR_ASSERT(digit.has_parameter("cond"));
     DMITIGR_ASSERT(to<std::string>(digit.extra().data("cond")) == "n > 0\n  AND n < 2");
-    digit.replace_parameter("cond", to<std::string_view>(digit.extra().data("cond")));
+    digit.replace("cond", to<std::string_view>(digit.extra().data("cond")));
     conn->execute([](auto&& row)
     {
       DMITIGR_ASSERT(to<int>(row[0]) == 1);
