@@ -53,13 +53,16 @@ public:
   virtual std::size_t parameter_count() const noexcept = 0;
 
   /// @returns `positional_parameter_count() > 0`.
-  virtual bool has_positional_parameters() const noexcept = 0;
+  virtual bool has_positional_parameter() const noexcept = 0;
 
   /// @returns `named_parameter_count() > 0`.
-  virtual bool has_named_parameters() const noexcept = 0;
+  virtual bool has_named_parameter() const noexcept = 0;
 
-  /// @returns `parameter_count() > 0`.
-  virtual bool has_parameters() const noexcept = 0;
+  /// @returns The same value as per call `parameter_count() > 0`.
+  virtual bool has_parameter() const noexcept = 0;
+
+  /// @returns `true` if the given parameter presents.
+  virtual bool has_parameter(const std::string_view name) const noexcept = 0;
 
   /**
    * @returns The name of the parameter by the `index`.
@@ -71,9 +74,6 @@ public:
 
   /// @returns The parameter index if presents, or `parameter_count()` othersize.
   virtual std::size_t parameter_index(std::string_view name) const noexcept = 0;
-
-  /// @returns `true` if the given parameter presents.
-  DMITIGR_PGFE_API bool has_parameter(const std::string_view name) const noexcept;
 
 private:
   friend Prepared_statement;

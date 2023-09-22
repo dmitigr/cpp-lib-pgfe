@@ -147,21 +147,27 @@ Prepared_statement::parameter_count() const noexcept
 }
 
 DMITIGR_PGFE_INLINE bool
-Prepared_statement::has_positional_parameters() const noexcept
+Prepared_statement::has_positional_parameter() const noexcept
 {
   return positional_parameter_count() > 0;
 }
 
 DMITIGR_PGFE_INLINE bool
-Prepared_statement::has_named_parameters() const noexcept
+Prepared_statement::has_named_parameter() const noexcept
 {
   return named_parameter_count() > 0;
 }
 
 DMITIGR_PGFE_INLINE bool
-Prepared_statement::has_parameters() const noexcept
+Prepared_statement::has_parameter() const noexcept
 {
   return !parameters_.empty();
+}
+
+DMITIGR_PGFE_INLINE bool
+Prepared_statement::has_parameter(const std::string_view name) const noexcept
+{
+  return parameter_index(name) < parameter_count();
 }
 
 DMITIGR_PGFE_INLINE std::string_view
@@ -370,7 +376,7 @@ DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(
   if (state_->preparsed_) {
     const std::size_t pc{preparsed->parameter_count()};
     parameters_.resize(pc - preparsed->bound_parameter_count());
-    if (preparsed->has_bound_parameters()) { // slow path
+    if (preparsed->has_bound_parameter()) { // slow path
       std::size_t bound_counter{};
       for (std::size_t i{preparsed->positional_parameter_count()}; i < pc; ++i) {
         std::string name{preparsed->parameter_name(i)};
@@ -415,7 +421,7 @@ DMITIGR_PGFE_INLINE bool Prepared_statement::is_invariant_ok() const noexcept
 {
   const bool state_ok = static_cast<bool>(state_);
   const bool params_ok = (parameter_count() <= max_parameter_count());
-  const bool preparsed_ok = is_preparsed() || !has_named_parameters();
+  const bool preparsed_ok = is_preparsed() || !has_named_parameter();
   const bool parameterizable_ok = Parameterizable::is_invariant_ok();
   return state_ok && params_ok && preparsed_ok && parameterizable_ok;
 }

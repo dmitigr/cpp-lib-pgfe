@@ -196,14 +196,17 @@ public:
   /// @see Parameterizable::parameter_count().
   DMITIGR_PGFE_API std::size_t parameter_count() const noexcept override;
 
-  /// @see Parameterizable::has_positional_parameters().
-  DMITIGR_PGFE_API bool has_positional_parameters() const noexcept override;
+  /// @see Parameterizable::has_positional_parameter().
+  DMITIGR_PGFE_API bool has_positional_parameter() const noexcept override;
 
-  /// @see Parameterizable::has_named_parameters().
-  DMITIGR_PGFE_API bool has_named_parameters() const noexcept override;
+  /// @see Parameterizable::has_named_parameter().
+  DMITIGR_PGFE_API bool has_named_parameter() const noexcept override;
 
-  /// @see Parameterizable::has_parameters().
-  DMITIGR_PGFE_API bool has_parameters() const noexcept override;
+  /// @see Parameterizable::has_parameter().
+  DMITIGR_PGFE_API bool has_parameter() const noexcept override;
+
+  /// @see Parameterizable::has_parameter(std::string_view).
+  DMITIGR_PGFE_API bool has_parameter(std::string_view name) const noexcept override;
 
   /// @see Parameterizable::parameter_name().
   DMITIGR_PGFE_API std::string_view

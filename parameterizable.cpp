@@ -18,15 +18,9 @@
 
 namespace dmitigr::pgfe {
 
-DMITIGR_PGFE_INLINE bool
-Parameterizable::has_parameter(const std::string_view name) const noexcept
-{
-  return parameter_index(name) < parameter_count();
-}
-
 DMITIGR_PGFE_INLINE bool Parameterizable::is_invariant_ok() const noexcept
 {
-  const bool params_ok = !has_parameters() || (parameter_count() > 0);
+  const bool params_ok = !has_parameter() || (parameter_count() > 0);
   const bool named_params_ok = [this]
   {
     const std::size_t pc{parameter_count()};

@@ -31,9 +31,9 @@ try {
     DMITIGR_ASSERT(ps1 && ps1.name() == "ps1");
     DMITIGR_ASSERT(!ps1.is_preparsed());
     DMITIGR_ASSERT(!ps1.is_described());
-    DMITIGR_ASSERT(!ps1.has_parameters());
-    DMITIGR_ASSERT(!ps1.has_named_parameters());
-    DMITIGR_ASSERT(!ps1.has_positional_parameters());
+    DMITIGR_ASSERT(!ps1.has_parameter());
+    DMITIGR_ASSERT(!ps1.has_named_parameter());
+    DMITIGR_ASSERT(!ps1.has_positional_parameter());
     DMITIGR_ASSERT(ps1.parameter_count() == 0);
     ps1.bind(64, 1983);
     DMITIGR_ASSERT(ps1.parameter_count() == 65);
@@ -75,9 +75,9 @@ try {
   DMITIGR_ASSERT(ps2.parameter_index("supremum") == 1);
   DMITIGR_ASSERT(ps2.has_parameter("infinum"));
   DMITIGR_ASSERT(ps2.has_parameter("supremum"));
-  DMITIGR_ASSERT(!ps2.has_positional_parameters());
-  DMITIGR_ASSERT(ps2.has_named_parameters());
-  DMITIGR_ASSERT(ps2.has_parameters());
+  DMITIGR_ASSERT(!ps2.has_positional_parameter());
+  DMITIGR_ASSERT(ps2.has_named_parameter());
+  DMITIGR_ASSERT(ps2.has_parameter());
   //
   DMITIGR_ASSERT(ps2.name() == "ps2");
   DMITIGR_ASSERT(!ps2.bound(0));

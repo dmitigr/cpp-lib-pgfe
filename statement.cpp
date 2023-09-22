@@ -146,19 +146,25 @@ DMITIGR_PGFE_INLINE std::size_t Statement::parameter_count() const noexcept
   return positional_parameter_count() + named_parameter_count();
 }
 
-DMITIGR_PGFE_INLINE bool Statement::has_positional_parameters() const noexcept
+DMITIGR_PGFE_INLINE bool Statement::has_positional_parameter() const noexcept
 {
   return !positional_parameters_.empty();
 }
 
-DMITIGR_PGFE_INLINE bool Statement::has_named_parameters() const noexcept
+DMITIGR_PGFE_INLINE bool Statement::has_named_parameter() const noexcept
 {
   return !named_parameters_.empty();
 }
 
-DMITIGR_PGFE_INLINE bool Statement::has_parameters() const noexcept
+DMITIGR_PGFE_INLINE bool Statement::has_parameter() const noexcept
 {
-  return has_positional_parameters() || has_named_parameters();
+  return has_positional_parameter() || has_named_parameter();
+}
+
+DMITIGR_PGFE_INLINE bool
+Statement::has_parameter(const std::string_view name) const noexcept
+{
+  return parameter_index(name) < parameter_count();
 }
 
 DMITIGR_PGFE_INLINE std::string_view
@@ -225,7 +231,7 @@ Statement::is_parameter_identifier(const std::string_view name) const
   return is_parameter_identifier(parameter_index(name));
 }
 
-DMITIGR_PGFE_INLINE bool Statement::has_missing_parameters() const noexcept
+DMITIGR_PGFE_INLINE bool Statement::has_missing_parameter() const noexcept
 {
   return any_of(cbegin(positional_parameters_), cend(positional_parameters_),
     [](const auto is_present) {return !is_present;});
@@ -289,7 +295,7 @@ Statement::bound_parameter_count() const noexcept
 }
 
 DMITIGR_PGFE_INLINE bool
-Statement::has_bound_parameters() const noexcept
+Statement::has_bound_parameter() const noexcept
 {
   return !bindings_.empty();
 }
@@ -366,9 +372,9 @@ Statement::to_query_string(const Connection& conn) const
 {
   using Ft = Fragment::Type;
 
-  if (has_missing_parameters())
+  if (has_missing_parameter())
     throw Generic_exception{"cannot convert Statement to query string: "
-      "has missing parameters"};
+      "has missing parameter"};
   else if (!conn.is_connected())
     throw Generic_exception{"cannot convert Statement to query string: "
       "not connected"};
@@ -392,7 +398,7 @@ Statement::to_query_string(const Connection& conn) const
   std::string result;
   result.reserve(2048);
   std::size_t bound_counter{};
-  const bool has_bound{has_bound_parameters()};
+  const bool has_bound{has_bound_parameter()};
   for (const auto& fragment : fragments_) {
     switch (fragment.type) {
     case Ft::text:
@@ -843,15 +849,15 @@ DMITIGR_PGFE_INLINE Tuple& Statement::extra() noexcept
 DMITIGR_PGFE_INLINE bool Statement::is_invariant_ok() const noexcept
 {
   const bool positional_parameters_ok =
-    (positional_parameter_count() > 0) == has_positional_parameters();
+    (positional_parameter_count() > 0) == has_positional_parameter();
   const bool named_parameters_ok =
-    (named_parameter_count() > 0) == has_named_parameters();
+    (named_parameter_count() > 0) == has_named_parameter();
   const bool parameters_ok =
-    (parameter_count() > 0) == has_parameters();
+    (parameter_count() > 0) == has_parameter();
   const bool parameters_count_ok =
     parameter_count() == (positional_parameter_count() + named_parameter_count());
   const bool bindings_ok = bindings_.size() <= named_parameter_count();
-  const bool empty_ok = !is_empty() || !has_parameters();
+  const bool empty_ok = !is_empty() || !has_parameter();
   const bool extra_ok = is_extra_data_should_be_extracted_from_comments_ || extra_;
   const bool parameterizable_ok = Parameterizable::is_invariant_ok();
 

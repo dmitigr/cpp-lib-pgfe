@@ -78,12 +78,12 @@ int main()
       DMITIGR_ASSERT(st.positional_parameter_count() == 0);
       DMITIGR_ASSERT(st.named_parameter_count() == 0);
       DMITIGR_ASSERT(st.parameter_count() == 0);
-      DMITIGR_ASSERT(!st.has_positional_parameters());
-      DMITIGR_ASSERT(!st.has_named_parameters());
-      DMITIGR_ASSERT(!st.has_parameters());
+      DMITIGR_ASSERT(!st.has_positional_parameter());
+      DMITIGR_ASSERT(!st.has_named_parameter());
+      DMITIGR_ASSERT(!st.has_parameter());
 
       DMITIGR_ASSERT(!st.is_empty());
-      DMITIGR_ASSERT(!st.has_missing_parameters());
+      DMITIGR_ASSERT(!st.has_missing_parameter());
 
       std::cout << st.to_string() << std::endl;
     }
@@ -94,10 +94,10 @@ int main()
       DMITIGR_ASSERT(st.positional_parameter_count() == 0);
       DMITIGR_ASSERT(st.named_parameter_count() == 3);
       DMITIGR_ASSERT(st.parameter_count() == 3);
-      DMITIGR_ASSERT(!st.has_positional_parameters());
-      DMITIGR_ASSERT(st.has_named_parameters());
-      DMITIGR_ASSERT(st.has_parameters());
-      DMITIGR_ASSERT(!st.has_missing_parameters());
+      DMITIGR_ASSERT(!st.has_positional_parameter());
+      DMITIGR_ASSERT(st.has_named_parameter());
+      DMITIGR_ASSERT(st.has_parameter());
+      DMITIGR_ASSERT(!st.has_missing_parameter());
       DMITIGR_ASSERT(!st.is_parameter_literal("num"));
       DMITIGR_ASSERT(!st.is_parameter_identifier("num"));
       DMITIGR_ASSERT(st.is_parameter_literal("txt"));
@@ -108,16 +108,16 @@ int main()
       DMITIGR_ASSERT(st.parameter_count() == 2);
 
       DMITIGR_ASSERT(st.bound_parameter_count() == 0);
-      DMITIGR_ASSERT(!st.has_bound_parameters());
+      DMITIGR_ASSERT(!st.has_bound_parameter());
       st.bind("txt", "one");
       DMITIGR_ASSERT(*st.bound("txt") == "one");
       std::cout << st.bound_parameter_count() << std::endl;
       DMITIGR_ASSERT(st.bound_parameter_count() == 1);
-      DMITIGR_ASSERT(st.has_bound_parameters());
+      DMITIGR_ASSERT(st.has_bound_parameter());
       st.bind("tab", "number");
       DMITIGR_ASSERT(*st.bound("tab") == "number");
       DMITIGR_ASSERT(st.bound_parameter_count() == 2);
-      DMITIGR_ASSERT(st.has_bound_parameters());
+      DMITIGR_ASSERT(st.has_bound_parameter());
 
       std::cout << st.to_string() << std::endl;
       std::cout << st.to_query_string(*conn) << std::endl;
@@ -168,20 +168,20 @@ call adb_nsi.rmm_workstation_task_set_state(
         DMITIGR_ASSERT(st.parameter_name(3) == "age");
         DMITIGR_ASSERT(st.parameter_index("last_name") == 2);
         DMITIGR_ASSERT(st.parameter_index("age") == 3);
-        DMITIGR_ASSERT(st.has_positional_parameters());
-        DMITIGR_ASSERT(st.has_named_parameters());
-        DMITIGR_ASSERT(st.has_parameters());
+        DMITIGR_ASSERT(st.has_positional_parameter());
+        DMITIGR_ASSERT(st.has_named_parameter());
+        DMITIGR_ASSERT(st.has_parameter());
 
         DMITIGR_ASSERT(!st.is_empty());
         DMITIGR_ASSERT(st.is_parameter_missing(0));
-        DMITIGR_ASSERT(st.has_missing_parameters());
+        DMITIGR_ASSERT(st.has_missing_parameter());
       }
 
       for (auto& ref : {std::ref(s_orig), std::ref(s_copy)}) {
         auto& st = ref.get();
         st.append(" WHERE $1");
         DMITIGR_ASSERT(!st.is_parameter_missing(0));
-        DMITIGR_ASSERT(!st.has_missing_parameters());
+        DMITIGR_ASSERT(!st.has_missing_parameter());
       }
 
       for (auto& ref : {std::ref(s_orig), std::ref(s_copy)}) {

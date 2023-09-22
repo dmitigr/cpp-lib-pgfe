@@ -52,10 +52,10 @@ namespace dmitigr::pgfe {
  *
  * Examples of valid SQL strings:
  *
- *   - the SQL string without parameters:
+ *   - the SQL string without parameter:
  *     @code{sql} SELECT 1 @endcode
  *
- *   - the SQL string with the positional and named parameters:
+ *   - the SQL string with the both positional and named parameters:
  *     @code{sql} SELECT 2, $1::int, :name::text @endcode
  *
  *   - the SQL string with named parameter:
@@ -117,14 +117,17 @@ public:
   /// @see Parameterizable::parameter_count().
   DMITIGR_PGFE_API std::size_t parameter_count() const noexcept override;
 
-  /// @see Parameterizable::has_positional_parameters().
-  DMITIGR_PGFE_API bool has_positional_parameters() const noexcept override;
+  /// @see Parameterizable::has_positional_parameter().
+  DMITIGR_PGFE_API bool has_positional_parameter() const noexcept override;
 
-  /// @see Parameterizable::has_named_parameters().
-  DMITIGR_PGFE_API bool has_named_parameters() const noexcept override;
+  /// @see Parameterizable::has_named_parameter().
+  DMITIGR_PGFE_API bool has_named_parameter() const noexcept override;
 
-  /// @see Parameterizable::has_parameters().
-  DMITIGR_PGFE_API bool has_parameters() const noexcept override;
+  /// @see Parameterizable::has_parameter().
+  DMITIGR_PGFE_API bool has_parameter() const noexcept override;
+
+  /// @see Parameterizable::has_parameter(std::string_view).
+  DMITIGR_PGFE_API bool has_parameter(std::string_view) const noexcept override;
 
   /// @see Parameterizable::parameter_name().
   DMITIGR_PGFE_API std::string_view
@@ -152,7 +155,7 @@ public:
    * @par Requires
    * `index < positional_parameter_count()`.
    *
-   * @remarks Missing parameters can only be eliminated by using methods append()
+   * @remarks Missing parameter can only be eliminated by using methods append()
    * or replace(). Thus, by replacing the parameter `p` with `$2, $1` in the
    * example above, missing parameters will be eliminated because the statement
    * will become the following:
@@ -201,7 +204,7 @@ public:
    *
    * @see is_parameter_missing().
    */
-  DMITIGR_PGFE_API bool has_missing_parameters() const noexcept;
+  DMITIGR_PGFE_API bool has_missing_parameter() const noexcept;
 
   /**
    * @brief Appends the specified SQL string.
@@ -267,7 +270,7 @@ public:
   /**
    * @returns The number of bound parameters.
    *
-   * @see has_bound_parameters(), bound().
+   * @see has_bound_parameter(), bound().
    */
   DMITIGR_PGFE_API std::size_t bound_parameter_count() const noexcept;
 
@@ -276,7 +279,7 @@ public:
    *
    * @see bound_parameter_count(), bound().
    */
-  DMITIGR_PGFE_API bool has_bound_parameters() const noexcept;
+  DMITIGR_PGFE_API bool has_bound_parameter() const noexcept;
 
   /**
    * @brief Replaces the parameter named by the `name` with the specified
@@ -306,7 +309,7 @@ public:
    * @returns The query string that's actually passed to a PostgreSQL server.
    *
    * @par Requires
-   * `!has_missing_parameters() && conn.is_connected()`.
+   * `!has_missing_parameter() && conn.is_connected()`.
    */
   DMITIGR_PGFE_API std::string to_query_string(const Connection& conn) const;
 

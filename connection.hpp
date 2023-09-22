@@ -702,7 +702,7 @@ public:
    * - `prepared_statement()` - just after the successful response.
    *
    * @par Requires
-   * `is_ready_for_nio_request() && !statement.has_missing_parameters()`.
+   * `is_ready_for_nio_request() && !statement.has_missing_parameter()`.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -738,7 +738,7 @@ public:
    * @returns The Prepared_statement as response on prepare request.
    *
    * @par Requires
-   * `is_ready_for_request() && !statement.has_missing_parameters()`.
+   * `is_ready_for_request() && !statement.has_missing_parameter()`.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -849,7 +849,7 @@ public:
    * @returns The Completion as response on a request.
    *
    * @par Requires
-   * `is_ready_for_request() && !statement.has_missing_parameters()`.
+   * `is_ready_for_request() && !statement.has_missing_parameter()`.
    *
    * @par Exception safety guarantee
    * Strong.
