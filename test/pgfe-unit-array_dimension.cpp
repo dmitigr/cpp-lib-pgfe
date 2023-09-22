@@ -41,7 +41,7 @@ int main()
     DMITIGR_ASSERT(array_dimension("{{ {3") == 3);
 
     using pgfe::Generic_exception;
-    constexpr auto malformed_literal = pgfe::Generic_errc::malformed_literal;
+    constexpr auto malformed_literal = pgfe::Errc::malformed_literal;
     for (const char* const literal : {"1", "{,", "{{,}}", "{ { ,2}}"})
       try {
         array_dimension(literal);

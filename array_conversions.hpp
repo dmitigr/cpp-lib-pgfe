@@ -104,7 +104,7 @@ using Cont_of_vals_t = typename Cont_of_vals<T>::Type;
 /**
  * @returns The container of values converted from the container of optionals.
  *
- * @throws Generic_exception with code Generic_errc::improper_value_type
+ * @throws Generic_exception with code Errc::improper_value_type
  * if element `e` for which `!e` presents in `container`.
  */
 template<typename T,
@@ -310,7 +310,7 @@ public:
     } else {
       (void)value;   // dummy usage
       (void)is_null; // dummy usage
-      throw Generic_exception{Generic_errc::excessive_dimensionality};
+      throw Generic_exception{Errc::excessive_dimensionality};
     }
   }
 
@@ -328,7 +328,7 @@ template<typename T, typename ... Types>
 const char* fill_container(T& /*result*/, const char* /*literal*/,
   const char /*delimiter*/, Types&& ... /*args*/)
 {
-  throw Generic_exception{Generic_errc::insufficient_dimensionality};
+  throw Generic_exception{Errc::insufficient_dimensionality};
 }
 
 /// Used by to_array_literal()
@@ -457,7 +457,7 @@ const char* parse_array_literal(const char* literal, const char delimiter,
       } else if (str::is_space(c)) {
         // Skip space.
       } else
-        throw Generic_exception{Generic_errc::malformed_literal};
+        throw Generic_exception{Errc::malformed_literal};
 
       goto preparing_to_the_next_iteration;
     }
@@ -469,13 +469,13 @@ const char* parse_array_literal(const char* literal, const char delimiter,
         // Skip space.
       } else if (c == delimiter) {
         if (previous_nonspace_char == delimiter || previous_nonspace_char == '{')
-          throw Generic_exception{Generic_errc::malformed_literal};
+          throw Generic_exception{Errc::malformed_literal};
       } else if (c == '{') {
         handler(dimension);
         ++dimension;
       } else if (c == '}') {
         if (previous_nonspace_char == delimiter)
-          throw Generic_exception{Generic_errc::malformed_literal};
+          throw Generic_exception{Errc::malformed_literal};
 
         --dimension;
         if (dimension == 0) {
@@ -517,7 +517,7 @@ const char* parse_array_literal(const char* literal, const char delimiter,
   element_extracted:
     {
       if (element.empty())
-        throw Generic_exception{Generic_errc::malformed_literal};
+        throw Generic_exception{Errc::malformed_literal};
 
       const bool is_element_null =
         ((state == in_unquoted_element && element.size() == 4)
@@ -552,7 +552,7 @@ const char* parse_array_literal(const char* literal, const char delimiter,
   } // while
 
   if (dimension != 0)
-    throw Generic_exception{Generic_errc::malformed_literal};
+    throw Generic_exception{Errc::malformed_literal};
 
   return literal;
 }
@@ -588,7 +588,7 @@ const char* fill_container(Container<std::optional<T>,
 
   literal = next_non_space_pointer(literal);
   if (*literal != '{')
-    throw Generic_exception{Generic_errc::malformed_literal};
+    throw Generic_exception{Errc::malformed_literal};
 
   const char* subliteral = next_non_space_pointer(literal + 1);
   if (*subliteral == '{') {
@@ -621,7 +621,7 @@ const char* fill_container(Container<std::optional<T>,
          */
         subliteral = next_non_space_pointer(subliteral + 1);
         if (*subliteral != '{')
-          throw Generic_exception{Generic_errc::malformed_literal};
+          throw Generic_exception{Errc::malformed_literal};
       } else if (*subliteral == '}') {
         // The end of the dimension: subliteral is "},{{3,4}}}"
         ++subliteral;
@@ -688,7 +688,7 @@ Container to_container(const char* const literal, const char delimiter,
  * @returns A container of non-null values converted from PostgreSQL array
  * literal.
  *
- * @throws Generic_exception with the code Generic_errc::improper_value_type.
+ * @throws Generic_exception with the code Errc::improper_value_type.
  */
 template<typename T,
   template<class, class> class Container,
@@ -706,7 +706,7 @@ to_container_of_values(Container<std::optional<T>,
       if (elem)
         return to_container_of_values(std::move(*elem));
       else
-        throw Generic_exception{Generic_errc::improper_value_type};
+        throw Generic_exception{Errc::improper_value_type};
     });
   return result;
 }
@@ -783,7 +783,7 @@ struct Conversions<Container<std::optional<T>, Allocator<std::optional<T>>>> fin
  * @tparam Container The container template class, such as `std::vector`.
  * @tparam Allocator The allocator template class, such as `std::allocator`.
  *
- * @throws Generic_exception with code Generic_errc::improper_value_type when
+ * @throws Generic_exception with code Errc::improper_value_type when
  * converting the PostgreSQL array representations with at least one NULL element.
  */
 template<typename T,

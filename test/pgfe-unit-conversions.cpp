@@ -240,7 +240,7 @@ int main()
       try {
         const auto converted = pgfe::to<Arr>(*data);
       } catch (const pgfe::Generic_exception& e) {
-        test_ok = (e.condition() == pgfe::Generic_errc::insufficient_dimensionality);
+        test_ok = (e.condition() == pgfe::Errc::insufficient_dimensionality);
       }
       DMITIGR_ASSERT(test_ok);
     }
@@ -256,7 +256,7 @@ int main()
       try {
         const auto converted = pgfe::to<Arr2>(*data);
       } catch (const pgfe::Generic_exception& e) {
-        test_ok = (e.condition() == pgfe::Generic_errc::excessive_dimensionality);
+        test_ok = (e.condition() == pgfe::Errc::excessive_dimensionality);
       }
       DMITIGR_ASSERT(test_ok);
     }
@@ -359,13 +359,13 @@ int main()
             const auto native = pgfe::to<Arr>(pgfe::Data::make(malformed_literal));
           } catch (const pgfe::Generic_exception& e) {
             cond = e.condition();
-            if (cond != pgfe::Generic_errc::malformed_literal) {
-              std::cerr << "Expected pgfe::Generic_errc::malformed_literal, but got "
+            if (cond != pgfe::Errc::malformed_literal) {
+              std::cerr << "Expected pgfe::Errc::malformed_literal, but got "
                         << cond.value() << "." << std::endl;
               throw;
             }
           }
-          DMITIGR_ASSERT(cond == pgfe::Generic_errc::malformed_literal);
+          DMITIGR_ASSERT(cond == pgfe::Errc::malformed_literal);
         }
       }
 
@@ -378,13 +378,13 @@ int main()
             const auto native = pgfe::to<Arr2>(pgfe::Data::make(malformed_literal));
           } catch (const pgfe::Generic_exception& e) {
             cond = e.condition();
-            if (cond != pgfe::Generic_errc::malformed_literal) {
-              std::cerr << "Expected pgfe::Generic_errc::malformed_literal, but got "
+            if (cond != pgfe::Errc::malformed_literal) {
+              std::cerr << "Expected pgfe::Errc::malformed_literal, but got "
                         << cond.value() << "." << std::endl;
               throw;
             }
           }
-          DMITIGR_ASSERT(cond == pgfe::Generic_errc::malformed_literal);
+          DMITIGR_ASSERT(cond == pgfe::Errc::malformed_literal);
         }
       }
     }

@@ -18,9 +18,8 @@
 
 namespace dmitigr::pgfe {
 
-DMITIGR_PGFE_INLINE const char* to_literal(const Generic_errc errc) noexcept
+DMITIGR_PGFE_INLINE const char* to_literal(const Errc errc) noexcept
 {
-  using Errc = Generic_errc;
   switch (errc) {
   case Errc::success:
     return "success";

@@ -69,7 +69,7 @@ DMITIGR_PGFE_INLINE int array_dimension(const std::string_view literal,
     else if (std::isspace(static_cast<unsigned char>(c)))
       ; // Skip space.
     else if (!dimension || c == delimiter)
-      throw Generic_exception{Generic_errc::malformed_literal};
+      throw Generic_exception{Errc::malformed_literal};
     else
       break;
   }

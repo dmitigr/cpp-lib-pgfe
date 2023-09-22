@@ -350,13 +350,13 @@ Connection::aio_set_establishment_handler(const Asio_ip_tcp::socket::wait_type v
       if (ec) {
         return connect_handler_(Err{ec.default_error_condition()}, *this);
       } else if (const auto s = connect_nio(); s == Status::failure) {
-        return connect_handler_(Err{Generic_errc::generic, "AIO connect failure"}, *this);
+        return connect_handler_(Err{Errc::generic, "AIO connect failure"}, *this);
       } else if (s == Status::establishment_reading) {
         aio_set_establishment_handler(Asio_ip_tcp::socket::wait_read);
       } else if (s == Status::establishment_writing) {
         aio_set_establishment_handler(Asio_ip_tcp::socket::wait_write);
       } else if (s == Status::connected) {
-        connect_handler_(Err{Generic_errc::success}, *this);
+        connect_handler_(Err{Errc::success}, *this);
         connect_handler_ = {};
         aio_set_connected_read_ready_handler();
       }
@@ -418,7 +418,7 @@ DMITIGR_PGFE_INLINE void Connection::connect_aio(Aio_handler connect_handler,
   } catch (const dmitigr::Exception& e) {
     connect_handler(e.err(), *this);
   } catch (...) {
-    connect_handler(Err{Generic_errc::generic}, *this);
+    connect_handler(Err{Errc::generic}, *this);
   }
   set_nio_output_enabled(true);
   loop_sock_ = Tcp::socket{loop_->get_executor(), Tcp::v4(), socket()};
@@ -457,7 +457,7 @@ Connection::connect(std::optional<std::chrono::milliseconds> timeout)
   };
   static const auto throw_timeout = []
   {
-    throw Generic_exception{Generic_errc::timed_out, "connection timeout"};
+    throw Generic_exception{Errc::timed_out, "connection timeout"};
   };
 
   // Stage 1: beginning.
@@ -822,7 +822,7 @@ Connection::wait_response(std::optional<std::chrono::milliseconds> timeout)
         read_input();
         rs = handle_input(false);
       } else // timeout expired
-        throw Generic_exception{Generic_errc::timed_out, "wait response timeout expired"};
+        throw Generic_exception{Errc::timed_out, "wait response timeout expired"};
     }
   } else
     rs = handle_input(true);
@@ -1424,7 +1424,7 @@ DMITIGR_PGFE_INLINE Prepared_statement Connection::wait_prepared_statement__()
   wait_response_throw();
   if (auto comp = completion()) {
     DMITIGR_ASSERT(comp.tag() == "invalid");
-    throw Generic_exception{Generic_errc::invalid_response};
+    throw Generic_exception{Errc::invalid_response};
   }
   return prepared_statement();
 }
@@ -1460,14 +1460,13 @@ DMITIGR_PGFE_INLINE int Connection::socket() const noexcept
 DMITIGR_PGFE_INLINE void Connection::throw_if_error()
 {
   if (auto err = error())
-    throw Sqlstate_exception{std::make_shared<Error>(std::move(err)),
-      "PostgreSQL server error"};
+    throw Sqlstate_exception{std::make_shared<Error>(std::move(err))};
 }
 
 DMITIGR_PGFE_INLINE Completion&& Connection::completion_or_throw(Completion&& comp)
 {
   if (comp.tag() == "invalid")
-    throw Generic_exception{Generic_errc::invalid_response};
+    throw Generic_exception{Errc::invalid_response};
   else
     return std::move(comp);
 }

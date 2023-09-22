@@ -50,7 +50,7 @@ enum class Ssl_mode;
 enum class Ssl_protocol_version;
 enum class Transaction_status;
 
-enum class Generic_errc;
+enum class Errc;
 enum class Sqlstate;
 
 enum class Large_object_open_mode;

@@ -30,7 +30,7 @@ namespace std {
  * @brief The full specialization for the integration with `<system_error>`.
  */
 template<>
-struct is_error_condition_enum<dmitigr::pgfe::Generic_errc> final : true_type {};
+struct is_error_condition_enum<dmitigr::pgfe::Errc> final : true_type {};
 
 /**
  * @ingroup errors
@@ -63,7 +63,7 @@ public:
    * @returns The string that describes the error condition denoted by `ev`.
    *
    * @par Requires
-   * `ev` must corresponds to the value of Generic_errc.
+   * `ev` must corresponds to the value of Errc.
    *
    * @remarks The caller should not rely on the return value as it is a
    * subject to change.
@@ -125,7 +125,7 @@ inline const Sqlstate_error_category& sqlstate_error_category() noexcept
  *
  * @returns `std::error_condition(int(errc), generic_error_category())`
  */
-inline std::error_condition make_error_condition(const Generic_errc errc) noexcept
+inline std::error_condition make_error_condition(const Errc errc) noexcept
 {
   return std::error_condition{static_cast<int>(errc), generic_error_category()};
 }

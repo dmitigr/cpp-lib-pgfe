@@ -439,7 +439,7 @@ public:
    * @par Requires
    * `!timeout || (timeout->count() >= -1)`.
    *
-   * @throws Generic_exception with code Generic_errc::timed_out if the expression
+   * @throws Generic_exception with code Errc::timed_out if the expression
    * `has_response()` will not evaluates to `true` within the specified `timeout`.
    *
    * @par Exception safety guarantee
@@ -1323,7 +1323,7 @@ private:
       } catch (const dmitigr::Exception& e) {
         aio_disconnect_and_handle(e.err());
       } catch (...) {
-        aio_disconnect_and_handle(Err{Generic_errc::generic});
+        aio_disconnect_and_handle(Err{Errc::generic});
       }
     };
   }

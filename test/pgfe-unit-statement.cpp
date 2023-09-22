@@ -23,6 +23,21 @@
 
 #include <functional>
 
+template<typename ... Types>
+void state_task(dmitigr::pgfe::Connection& dbconn, Types&& ... execute_args)
+{
+  static const dmitigr::pgfe::Statement call_set_state{R"(
+select foo(
+  id := :id,
+  state := :state,
+  descr := :descr,
+  curuser := curuser())
+)"};
+
+  dbconn.connect(); // just in case
+  dbconn.execute(call_set_state, std::forward<Types>(execute_args)...);
+}
+
 int main()
 {
   try {
@@ -115,6 +130,26 @@ int main()
       std::cout << st.to_string() << std::endl;
       std::cout << st.to_query_string(*conn) << std::endl;
       std::cout << st.parameter_count() << std::endl;
+    }
+
+    {
+      const pgfe::Statement call{R"(
+call adb_nsi.rmm_workstation_task_set_state(
+  p_workstation_task_id := :id,
+  p_state_code := :state,
+  p_description := :descr,
+  p_current_user := adb_system.get_system_user_login())
+)"};
+      std::cout << call.to_string() << std::endl;
+      std::cout << call.to_query_string(*conn) << std::endl;
+      std::cout << call.parameter_count() << std::endl;
+      DMITIGR_ASSERT(call.parameter_name(0) == "id");
+      DMITIGR_ASSERT(call.parameter_name(1) == "state");
+      DMITIGR_ASSERT(call.parameter_name(2) == "descr");
+
+      // using pgfe::a;
+      // const a a_task_id{"id", 12345};
+      // state_task(*conn, a_task_id, a{"state", "TASK_COMPLETED"}, a{"descr", ""});
     }
 
     {

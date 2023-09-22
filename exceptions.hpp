@@ -24,6 +24,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace dmitigr::pgfe {
 
@@ -33,7 +34,14 @@ namespace dmitigr::pgfe {
  * @brief The base exception class.
  */
 class Exception : public dmitigr::Exception {
-  using dmitigr::Exception::Exception;
+private:
+  friend Generic_exception;
+  friend Sqlstate_exception;
+
+  template<typename ... Types>
+  Exception(Types&& ... args)
+    : dmitigr::Exception{std::forward<Types>(args)...}
+  {}
 };
 
 // =============================================================================
@@ -46,7 +54,7 @@ class Exception : public dmitigr::Exception {
 class Generic_exception final : public Exception {
 public:
   /// The constructor.
-  explicit DMITIGR_PGFE_API Generic_exception(const Generic_errc errc,
+  explicit DMITIGR_PGFE_API Generic_exception(const Errc errc,
     std::string what = {});
 
   /// @overload
@@ -58,7 +66,7 @@ public:
 /**
  * @ingroup errors
  *
- * @brief An exception which represents an SQLSTATE error.
+ * @brief An exception associated with SQLSTATE error condition.
  */
 class Sqlstate_exception final : public Exception {
 public:
@@ -68,8 +76,7 @@ public:
    * @par Requires
    * `error`.
    */
-  explicit DMITIGR_PGFE_API Sqlstate_exception(std::shared_ptr<Error>&& error,
-    const std::string& what = {});
+  explicit DMITIGR_PGFE_API Sqlstate_exception(std::shared_ptr<Error>&& error);
 
   /// @returns The error response (aka error report).
   DMITIGR_PGFE_API const Error& error() const noexcept;

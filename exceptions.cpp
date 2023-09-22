@@ -21,20 +21,23 @@
 
 namespace dmitigr::pgfe {
 
-DMITIGR_PGFE_INLINE Generic_exception::Generic_exception(const Generic_errc errc,
+DMITIGR_PGFE_INLINE Generic_exception::Generic_exception(const Errc errc,
   std::string what)
-  : Exception{errc, what.empty() ? to_literal(errc) : what}
+  : Exception{errc,
+    what.empty() ?
+    std::string{"dmitigr::pgfe error: "}.append(to_literal(errc)) :
+    std::string{"dmitigr::pgfe error: "}.append(what)}
 {}
 
 DMITIGR_PGFE_INLINE Generic_exception::Generic_exception(const std::string& what)
-  : Generic_exception{Generic_errc::generic, what}
+  : Generic_exception{Errc::generic, what}
 {}
 
 // =============================================================================
 
-DMITIGR_PGFE_INLINE Sqlstate_exception::Sqlstate_exception(std::shared_ptr<Error>&& error,
-  const std::string& what)
-  : Exception{detail::not_false(error)->condition(), what}
+DMITIGR_PGFE_INLINE Sqlstate_exception::Sqlstate_exception(std::shared_ptr<Error>&& error)
+  : Exception{detail::not_false(error)->condition(),
+    std::string{"PostgreSQL error: "}.append(detail::not_false(error)->brief())}
   , error_{std::move(error)}
 {}
 

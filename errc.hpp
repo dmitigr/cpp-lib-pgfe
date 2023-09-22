@@ -26,7 +26,7 @@ namespace dmitigr::pgfe {
  *
  * @brief Represents a generic error code.
  */
-enum class Generic_errc {
+enum class Errc {
   /// Denotes success (no error).
   success = 0,
 
@@ -56,9 +56,9 @@ enum class Generic_errc {
  * @ingroup errors
  *
  * @returns The literal representation of the `errc`, or `nullptr`
- * if `errc` does not corresponds to any value defined by Generic_errc.
+ * if `errc` does not corresponds to any value defined by Errc.
  */
-DMITIGR_PGFE_API const char* to_literal(Generic_errc errc) noexcept;
+DMITIGR_PGFE_API const char* to_literal(Errc errc) noexcept;
 
 /**
  * @ingroup errors
