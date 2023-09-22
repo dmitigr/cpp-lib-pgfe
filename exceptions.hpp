@@ -76,13 +76,10 @@ public:
    * @par Requires
    * `error`.
    */
-  explicit DMITIGR_PGFE_API Sqlstate_exception(std::shared_ptr<Error>&& error);
+  explicit DMITIGR_PGFE_API Sqlstate_exception(std::shared_ptr<Error> error);
 
   /// @returns The error response (aka error report).
-  DMITIGR_PGFE_API const Error& error() const noexcept;
-
-  /// @returns The error response as the underlying shared pointer.
-  DMITIGR_PGFE_API std::shared_ptr<Error> error_ptr() const noexcept;
+  DMITIGR_PGFE_API std::shared_ptr<Error> error() const noexcept;
 
 private:
   std::shared_ptr<Error> error_;

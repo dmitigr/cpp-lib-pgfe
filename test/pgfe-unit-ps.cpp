@@ -42,7 +42,7 @@ try {
     try {
       ps1.execute();
     } catch (const pgfe::Sqlstate_exception& e) {
-      DMITIGR_ASSERT(e.error().condition() == pgfe::Sqlstate::c08_protocol_violation);
+      DMITIGR_ASSERT(e.error()->condition() == pgfe::Sqlstate::c08_protocol_violation);
     }
 
     ps1.describe();

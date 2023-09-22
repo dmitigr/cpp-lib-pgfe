@@ -64,8 +64,8 @@ int main() try {
   // Provoking the syntax error.
   conn.execute("provoke syntax error");
  } catch (const pgfe::Sqlstate_exception& e) {
-  assert(e.error().condition() == pgfe::Sqlstate::c42_syntax_error);
-  std::printf("Error %s is handled as expected.\n", e.error().code());
+  assert(e.error()->condition() == pgfe::Sqlstate::c42_syntax_error);
+  std::printf("Error %s is handled as expected.\n", e.error()->code());
  } catch (const std::exception& e) {
   std::printf("Oops: %s\n", e.what());
   return 1;

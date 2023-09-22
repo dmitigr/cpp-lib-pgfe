@@ -47,7 +47,7 @@ try {
     }, "select provoke_err_in_mid(n) from generate_series(1,10) n");
   } catch (const pgfe::Sqlstate_exception& e) {
     // ok, expected.
-    DMITIGR_ASSERT(e.error().condition() == pgfe::Sqlstate::cp0_raise_exception);
+    DMITIGR_ASSERT(e.error()->condition() == pgfe::Sqlstate::cp0_raise_exception);
     DMITIGR_ASSERT(rows_processed);
   }
   DMITIGR_ASSERT(conn->is_ready_for_nio_request());

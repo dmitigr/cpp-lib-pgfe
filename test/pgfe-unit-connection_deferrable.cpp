@@ -46,7 +46,7 @@ try {
     conn->execute("commit");
   } catch (const pgfe::Sqlstate_exception& e) {
     // ok, expected.
-    DMITIGR_ASSERT(e.error().condition() == pgfe::Sqlstate::cp0_raise_exception);
+    DMITIGR_ASSERT(e.error()->condition() == pgfe::Sqlstate::cp0_raise_exception);
   }
 } catch (const std::exception& e) {
   std::cerr << e.what() << std::endl;

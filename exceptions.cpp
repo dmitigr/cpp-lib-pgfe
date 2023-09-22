@@ -35,18 +35,13 @@ DMITIGR_PGFE_INLINE Generic_exception::Generic_exception(const std::string& what
 
 // =============================================================================
 
-DMITIGR_PGFE_INLINE Sqlstate_exception::Sqlstate_exception(std::shared_ptr<Error>&& error)
+DMITIGR_PGFE_INLINE Sqlstate_exception::Sqlstate_exception(std::shared_ptr<Error> error)
   : Exception{detail::not_false(error)->condition(),
     std::string{"PostgreSQL error: "}.append(detail::not_false(error)->brief())}
   , error_{std::move(error)}
 {}
 
-DMITIGR_PGFE_INLINE const Error& Sqlstate_exception::error() const noexcept
-{
-  return *error_;
-}
-
-DMITIGR_PGFE_INLINE std::shared_ptr<Error> Sqlstate_exception::error_ptr() const noexcept
+DMITIGR_PGFE_INLINE std::shared_ptr<Error> Sqlstate_exception::error() const noexcept
 {
   return error_;
 }

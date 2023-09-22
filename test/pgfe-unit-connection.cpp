@@ -300,7 +300,7 @@ try {
           try {
             conn->describe("unprepared");
           } catch (const pgfe::Sqlstate_exception& e) {
-            DMITIGR_ASSERT(e.error().condition() ==
+            DMITIGR_ASSERT(e.error()->condition() ==
               pgfe::Sqlstate::c26_invalid_sql_statement_name);
             DMITIGR_ASSERT(!conn->has_response());
             DMITIGR_ASSERT(!conn->has_uncompleted_request());
@@ -317,7 +317,7 @@ try {
           try {
             conn->unprepare("unprepared");
           } catch (const pgfe::Sqlstate_exception& e) {
-            DMITIGR_ASSERT(e.error().condition() ==
+            DMITIGR_ASSERT(e.error()->condition() ==
               pgfe::Sqlstate::c26_invalid_sql_statement_name);
             DMITIGR_ASSERT(!conn->has_response());
             DMITIGR_ASSERT(!conn->has_uncompleted_request());
