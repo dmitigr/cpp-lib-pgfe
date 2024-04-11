@@ -64,11 +64,10 @@ try {
     pgfe::Connection conn;
     try {
       conn.connect();
-    } catch (const std::exception& e) {}
+    } catch (const std::exception&) {}
+    conn.disconnect();
     DMITIGR_ASSERT(conn.status() == Connection_status::disconnected);
   }
-    // conn.disconnect();
-    // DMITIGR_ASSERT(conn.status() == Connection_status::disconnected);
 
   // Ping
   {
@@ -429,7 +428,8 @@ try {
         conn->invoke([&called](auto&& r)
         {
           DMITIGR_ASSERT(r.field_index("version") == 0);
-          std::cout << "This test runs on " << r["version"].bytes() << std::endl;
+          std::cout << "This test runs on "
+                    << to<std::string_view>(r["version"]) << std::endl;
           called = true;
         } ,"version");
         DMITIGR_ASSERT(called);
