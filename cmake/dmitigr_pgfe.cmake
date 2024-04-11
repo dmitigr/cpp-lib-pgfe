@@ -147,6 +147,7 @@ if(DMITIGR_LIBS_TESTS)
     ps
     lob
     row
+    service
     statement
     statement_vector
     transaction_guard
