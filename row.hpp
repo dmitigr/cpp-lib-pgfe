@@ -96,7 +96,7 @@ public:
    * `field_index(name, offset) < field_count()`.
    */
   DMITIGR_PGFE_API Data_view data(const std::string_view name,
-    std::size_t offset = 0) const noexcept override;
+    std::size_t offset = 0) const override;
 
   /// @name Iterators
   /// @{

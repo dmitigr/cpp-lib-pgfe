@@ -75,7 +75,7 @@ DMITIGR_PGFE_INLINE Data_view Row::data(const std::size_t index) const
 }
 
 DMITIGR_PGFE_INLINE Data_view Row::data(const std::string_view name,
-  const std::size_t offset) const noexcept
+  const std::size_t offset) const
 {
   return data(field_index(name, offset));
 }
