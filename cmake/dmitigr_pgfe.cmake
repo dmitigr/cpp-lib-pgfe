@@ -100,21 +100,29 @@ set(dmitigr_pgfe_implementations
 set(dmitigr_libs_pgfe_deps base fsx net str util)
 
 if(Pq_ROOT)
-  find_package(Pq REQUIRED)
-  list(APPEND dmitigr_pgfe_target_include_directories_public "${Pq_INCLUDE_DIRS}")
-  list(APPEND dmitigr_pgfe_target_include_directories_interface "${Pq_INCLUDE_DIRS}")
-  list(APPEND dmitigr_pgfe_target_link_libraries_public ${Pq_LIBRARIES})
-  list(APPEND dmitigr_pgfe_target_link_libraries_interface ${Pq_LIBRARIES})
+  find_package(Pq)
+  if(Pq_FOUND)
+    list(APPEND dmitigr_pgfe_target_include_directories_public "${Pq_INCLUDE_DIRS}")
+    list(APPEND dmitigr_pgfe_target_include_directories_interface "${Pq_INCLUDE_DIRS}")
+    list(APPEND dmitigr_pgfe_target_link_libraries_public ${Pq_LIBRARIES})
+    list(APPEND dmitigr_pgfe_target_link_libraries_interface ${Pq_LIBRARIES})
+  else()
+    message(WARNING "Pq not found, relying on manual linkage")
+  endif()
 else()
-  find_package(PostgreSQL REQUIRED)
-  list(APPEND dmitigr_pgfe_target_include_directories_public
-    "${PostgreSQL_INCLUDE_DIRS}")
-  list(APPEND dmitigr_pgfe_target_include_directories_interface
-    "${PostgreSQL_INCLUDE_DIRS}")
-  list(APPEND dmitigr_pgfe_target_link_libraries_public
-    ${PostgreSQL_LIBRARIES})
-  list(APPEND dmitigr_pgfe_target_link_libraries_interface
-    ${PostgreSQL_LIBRARIES})
+  find_package(PostgreSQL)
+  if(PostgreSQL_FOUND)
+    list(APPEND dmitigr_pgfe_target_include_directories_public
+      "${PostgreSQL_INCLUDE_DIRS}")
+    list(APPEND dmitigr_pgfe_target_include_directories_interface
+      "${PostgreSQL_INCLUDE_DIRS}")
+    list(APPEND dmitigr_pgfe_target_link_libraries_public
+      ${PostgreSQL_LIBRARIES})
+    list(APPEND dmitigr_pgfe_target_link_libraries_interface
+      ${PostgreSQL_LIBRARIES})
+  else()
+    message(WARNING "PostgreSQL not found, relying on manual linkage")
+  endif()
 endif()
 
 # ------------------------------------------------------------------------------
