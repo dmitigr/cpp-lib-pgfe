@@ -545,7 +545,7 @@ const char* parse_array_literal(const char* literal, const char delimiter,
     } // extracted element processing
 
   preparing_to_the_next_iteration:
-    if (str::is_non_space(c))
+    if (str::is_not_space(c))
       previous_nonspace_char = c;
     previous_char = c;
     ++literal;
