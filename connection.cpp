@@ -1477,7 +1477,7 @@ DMITIGR_PGFE_INLINE std::string Connection::error_message() const
    * If nullptr passed to PQerrorMessage() it returns
    * something like "connection pointer is NULL\n".
    */
-  return conn() ? str::literal(PQerrorMessage(conn())) : std::string{};
+  return conn() ? str::value_or_empty(PQerrorMessage(conn())) : std::string{};
 }
 
 DMITIGR_PGFE_INLINE bool Connection::is_out_of_memory() const noexcept
