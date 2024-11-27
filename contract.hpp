@@ -17,7 +17,7 @@
 #ifndef DMITIGR_PGFE_CONTRACT_HPP
 #define DMITIGR_PGFE_CONTRACT_HPP
 
-#include "../util/contract.hpp"
+#include "../base/contract.hpp"
 #include "types_fwd.hpp"
 
 #include <utility>
@@ -32,7 +32,7 @@ namespace dmitigr::pgfe::detail {
 template<typename T>
 inline auto not_false(T&& value)
 {
-  return util::not_false<Generic_exception>(std::forward<T>(value));
+  return dmitigr::not_false<Generic_exception>(std::forward<T>(value));
 }
 
 } // namespace dmitigr::pgfe::detail

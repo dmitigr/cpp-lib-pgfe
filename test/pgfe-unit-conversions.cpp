@@ -15,10 +15,10 @@
 // limitations under the License.
 
 #include "../../base/assert.hpp"
+#include "../../base/diagnostic.hpp"
 #include "../../pgfe/conversions.hpp"
 #include "../../pgfe/errctg.hpp"
 #include "../../pgfe/exceptions.hpp"
-#include "../../util/diagnostic.hpp"
 
 #include <limits>
 #include <optional>
@@ -76,7 +76,7 @@ int main()
 {
   try {
     namespace pgfe = dmitigr::pgfe;
-    using dmitigr::util::with_catch;
+    using dmitigr::with_catch;
     using std::numeric_limits;
 
     // short

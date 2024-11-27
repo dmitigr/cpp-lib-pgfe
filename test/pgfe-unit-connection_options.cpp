@@ -18,8 +18,8 @@
 #undef DMITIGR_PGFE_NOT_HEADER_ONLY
 #endif
 #include "../../base/assert.hpp"
+#include "../../base/diagnostic.hpp"
 #include "../../pgfe/connection_options.hpp"
-#include "../../util/diagnostic.hpp"
 
 #include <cstring>
 #include <iostream>
@@ -28,7 +28,7 @@
 int main()
 {
   namespace pgfe = dmitigr::pgfe;
-  using dmitigr::util::with_catch;
+  using dmitigr::with_catch;
   using Cm = pgfe::Communication_mode;
   using Sm = pgfe::Session_mode;
   using pgfe::Generic_exception;

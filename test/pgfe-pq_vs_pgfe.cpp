@@ -98,7 +98,7 @@ void test_pgfe()
 
 int main()
 {
-  using dmitigr::util::with_measure;
+  using dmitigr::with_measure;
   std::cout << "Pq: ";
   const auto elapsed_pq = with_measure(test_pq);
   std::cout << elapsed_pq.count() << std::endl;

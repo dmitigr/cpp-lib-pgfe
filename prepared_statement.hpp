@@ -17,7 +17,7 @@
 #ifndef DMITIGR_PGFE_PREPARED_STATEMENT_HPP
 #define DMITIGR_PGFE_PREPARED_STATEMENT_HPP
 
-#include "../util/memory.hpp"
+#include "../base/memory.hpp"
 //#include "aio.hpp"
 #include "basics.hpp"
 #include "conversions_api.hpp"
@@ -104,7 +104,7 @@ public:
   DMITIGR_PGFE_API std::unique_ptr<Data> release() noexcept;
 
 private:
-  using Data_deletion_required = util::Conditional_delete<const Data>;
+  using Data_deletion_required = Conditional_delete<const Data>;
   using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
 
   std::string name_;
@@ -473,7 +473,7 @@ public:
 private:
   friend Connection;
 
-  using Data_deletion_required = util::Conditional_delete<const Data>;
+  using Data_deletion_required = Conditional_delete<const Data>;
   using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
 
   /// A parameter.

@@ -18,10 +18,10 @@
 #define DMITIGR_LIBS_TEST_PGFE_UNIT_HPP
 
 #include "../../base/assert.hpp"
+#include "../../base/diagnostic.hpp"
 #include "../../base/exceptions.hpp"
 #include "../../os/environment.hpp"
 #include "../../pgfe/pgfe.hpp"
-#include "../../util/diagnostic.hpp"
 
 #include <chrono>
 #include <cstdlib>
