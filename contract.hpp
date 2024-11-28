@@ -30,9 +30,9 @@ namespace dmitigr::pgfe::detail {
  * @throws Generic_exception if `!value`.
  */
 template<typename T>
-inline auto not_false(T&& value)
+inline auto forward_or_throw(T&& value, const char* const what)
 {
-  return dmitigr::not_false<Generic_exception>(std::forward<T>(value));
+  return dmitigr::forward_or_throw<Generic_exception>(std::forward<T>(value), what);
 }
 
 } // namespace dmitigr::pgfe::detail
