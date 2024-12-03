@@ -97,7 +97,7 @@ set(dmitigr_pgfe_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_libs_pgfe_deps base fsx net str)
+set(dmitigr_libs_pgfe_deps base net str)
 
 if(DMITIGR_LIBS_PQ)
   if(Pq_ROOT)
