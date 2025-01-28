@@ -18,7 +18,7 @@
 #define DMITIGR_PGFE_CONNECTION_HPP
 
 #include "../base/assert.hpp"
-#include "../base/err.hpp"
+#include "../base/error.hpp"
 // #include "aio.hpp"
 #include "basics.hpp"
 #include "completion.hpp"
