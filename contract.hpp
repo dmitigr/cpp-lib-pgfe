@@ -17,10 +17,8 @@
 #ifndef DMITIGR_PGFE_CONTRACT_HPP
 #define DMITIGR_PGFE_CONTRACT_HPP
 
-#include "../base/contract.hpp"
+#include "../base/utility.hpp"
 #include "types_fwd.hpp"
-
-#include <utility>
 
 namespace dmitigr::pgfe::detail {
 
