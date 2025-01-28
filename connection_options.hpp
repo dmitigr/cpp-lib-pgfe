@@ -17,12 +17,12 @@
 #ifndef DMITIGR_PGFE_CONNECTION_OPTIONS_HPP
 #define DMITIGR_PGFE_CONNECTION_OPTIONS_HPP
 
-#include "../base/fsx.hpp"
 #include "basics.hpp"
 #include "dll.hpp"
 
 #include <cstdint>
 #include <chrono>
+#include <filesystem>
 #include <optional>
 #include <string>
 
