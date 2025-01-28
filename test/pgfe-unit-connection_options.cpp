@@ -18,7 +18,7 @@
 #undef DMITIGR_PGFE_NOT_HEADER_ONLY
 #endif
 #include "../../base/assert.hpp"
-#include "../../base/diagnostic.hpp"
+#include "../../base/utility.hpp"
 #include "../../pgfe/connection_options.hpp"
 
 #include <cstring>

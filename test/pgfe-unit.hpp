@@ -18,8 +18,8 @@
 #define DMITIGR_LIBS_TEST_PGFE_UNIT_HPP
 
 #include "../../base/assert.hpp"
-#include "../../base/diagnostic.hpp"
 #include "../../base/exceptions.hpp"
+#include "../../base/utility.hpp"
 #include "../../os/environment.hpp"
 #include "../../pgfe/pgfe.hpp"
 
